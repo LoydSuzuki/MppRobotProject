@@ -24,23 +24,23 @@ public:
     
     void onCollision(ofxBulletCollisionData& cdata);
     //bool ContactCallback( btManifoldPoint& manifold, void* object0, void* object1 );
+    
+    ofEasyCam                   easyCam;
 	
 	ofxBulletWorldRigid			world;
 	ofxBulletBox				ground;
+    ofxBulletBox*				base;
     
     ofxBulletBox*               pan_a;
-    
-    ofxBulletBox*                tilt_a;
-    ofxBulletBox*                tilt_b;
-	
-	ofxBulletBox*				base;
-	
-    ofEasyCam                   easyCam;
+    ofxBulletBox*               tilt_a;
+    ofxBulletBox*               tilt_b;
+    ofxBulletBox*               tilt_c;
     
     ofxPanel gui;
     ofxFloatSlider slider_pan_a;
     ofxFloatSlider slider_tilt_a;
     ofxFloatSlider slider_tilt_b;
+    ofxFloatSlider slider_tilt_c;
 
     bool ground_colliding;
     
