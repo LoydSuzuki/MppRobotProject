@@ -35,12 +35,14 @@ public:
     ofxBulletBox*               tilt_a;
     ofxBulletBox*               tilt_b;
     ofxBulletBox*               tilt_c;
+    ofxBulletBox*               pan_b;
     
     ofxPanel gui;
     ofxFloatSlider slider_pan_a;
     ofxFloatSlider slider_tilt_a;
     ofxFloatSlider slider_tilt_b;
     ofxFloatSlider slider_tilt_c;
+    ofxFloatSlider slider_pan_b;
 
     bool ground_colliding;
     

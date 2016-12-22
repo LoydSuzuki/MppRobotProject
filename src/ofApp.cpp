@@ -57,12 +57,22 @@ void ofApp::setup() {
     tilt_c->enableKinematic();
     tilt_c->setActivationState(DISABLE_DEACTIVATION);
     
+    pan_b = new ofxBulletBox();
+    pan_b->create( world.world, ofVec3f(0.,0.,0.),1.,76.f,197.f,197.f);
+    pan_b->setProperties(.25,.95);
+    pan_b->add();
+    pan_b->enableKinematic();
+    pan_b->setActivationState(DISABLE_DEACTIVATION);
+
+    
     //gui
     gui.setup("panel");
     gui.add(slider_pan_a.setup("pan_a",0.,-50.,50.));
     gui.add(slider_tilt_a.setup("tilt_a",0.,-50.,50.));
     gui.add(slider_tilt_b.setup("tilt_b",0.,-50.,50.));
     gui.add(slider_tilt_c.setup("tilt_c",0.,-50.,50.));
+    gui.add(slider_pan_b.setup("pan_b",0.,-50.,50.));
+    
 
     
 }
@@ -81,11 +91,14 @@ void ofApp::update() {
     btTransform trans_tilt_a;
     btTransform trans_tilt_b;
     btTransform trans_tilt_c;
+    btTransform trans_pan_b;
     
     //setIdentity(初期化)
     trans_pan_a.setIdentity();
     trans_tilt_a.setIdentity();
     trans_tilt_b.setIdentity();
+    trans_tilt_c.setIdentity();
+    trans_pan_b.setIdentity();
     
     // get the rotation quaternion from the ground //
     ofQuaternion rotQuat = tilt_a->getRotationQuat();
@@ -95,6 +108,7 @@ void ofApp::update() {
     float newRot_tilt_a = slider_tilt_a*0.1;
     float newRot_tilt_b = slider_tilt_b*0.1;
     float newRot_tilt_c = slider_tilt_c*0.1;
+    float newRot_pan_b = slider_pan_b*0.1;
     
     // set the rotation of the bullet transform to that of the axis of the stored quaternion
     // and apply the new rotation
@@ -103,11 +117,15 @@ void ofApp::update() {
     btQuaternion tilt_a_quat = btQuaternion(btVector3(0.,0.,1.0),newRot_tilt_a);
     btQuaternion tilt_b_quat = btQuaternion(btVector3(0.,0.,1.0),newRot_tilt_b);
     btQuaternion tilt_c_quat = btQuaternion(btVector3(0.,0.,1.0),newRot_tilt_c);
+    btQuaternion pan_b_quat =  btQuaternion(btVector3(1.0,0.,0),newRot_pan_b);
+    
     
     trans_pan_a.setRotation(pan_a_quat);
     trans_tilt_a.setRotation(pan_a_quat * tilt_a_quat );
     trans_tilt_b.setRotation(pan_a_quat * tilt_a_quat * tilt_b_quat);
     trans_tilt_c.setRotation(pan_a_quat * tilt_a_quat * tilt_b_quat * tilt_c_quat);
+    trans_pan_b.setRotation(pan_a_quat * tilt_a_quat * tilt_b_quat * tilt_c_quat * pan_b_quat);
+    
     
     //tilt_a 座標計算
     
@@ -154,10 +172,32 @@ void ofApp::update() {
     float tilt_c_y = tilt_c_global_y+160+190;
     float tilt_c_z = tilt_c_global_z_pan;
     
+    //pan_b 座標計算
+    
+    float pan_b_local_x = cos(newRot_tilt_c)*(75.0f+113.0f)+1000.0f;
+    float pan_b_local_y = sin(newRot_tilt_c)*(75.0f+113.0f);
+    
+    float pan_b_tilt_b_x = pan_b_local_x * cos(newRot_tilt_b) - pan_b_local_y * sin(newRot_tilt_b)+1000.0f;
+    float pan_b_tilt_b_y = pan_b_local_x * sin(newRot_tilt_b) + pan_b_local_y * cos(newRot_tilt_b);
+    
+    float pan_b_global_x = pan_b_tilt_b_x * cos(newRot_tilt_a) - pan_b_tilt_b_y * sin(newRot_tilt_a);
+    float pan_b_global_y = pan_b_tilt_b_x * sin(newRot_tilt_a) + pan_b_tilt_b_y * cos(newRot_tilt_a);
+    
+    float pan_b_global_x_pan = cos(newRot_pan_a)*pan_b_global_x;
+    float pan_b_global_z_pan = -sin(newRot_pan_a)*pan_b_global_x;
+    
+    float pan_b_x = pan_b_global_x_pan;
+    float pan_b_y = pan_b_global_y+160+190;
+    float pan_b_z = pan_b_global_z_pan;
+    
+    
+    
+    //setOrigin
     trans_pan_a.setOrigin(btVector3(0, 160+190/2, 0));
     trans_tilt_a.setOrigin(vector_tilt_a);
     trans_tilt_b.setOrigin(btVector3( tilt_b_x, tilt_b_y, tilt_b_z));
     trans_tilt_c.setOrigin(btVector3( tilt_c_x, tilt_c_y, tilt_c_z));
+    trans_pan_b.setOrigin(btVector3( pan_b_x, pan_b_y, pan_b_z));
     
     pan_a->getRigidBody()->setCenterOfMassTransform(trans_pan_a);
     pan_a->getRigidBody()->getMotionState()->setWorldTransform(trans_pan_a);
@@ -177,6 +217,12 @@ void ofApp::update() {
     tilt_c->getRigidBody()->getMotionState()->setWorldTransform(trans_tilt_c);
     // tell the ofxBulletWorldRigid that we have moved rigid body and it should update the collision object //
     tilt_c->activate();
+    
+    pan_b->getRigidBody()->setCenterOfMassTransform(trans_pan_b);
+    pan_b->getRigidBody()->getMotionState()->setWorldTransform(trans_pan_b);
+    // tell the ofxBulletWorldRigid that we have moved rigid body and it should update the collision object //
+    pan_b->activate();
+
     
    }
 
@@ -212,6 +258,7 @@ void ofApp::draw() {
     tilt_a->draw();
     tilt_b->draw();
     tilt_c->draw();
+    pan_b->draw();
 	
     easyCam.end();
     
