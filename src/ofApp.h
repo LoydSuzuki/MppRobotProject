@@ -28,28 +28,21 @@ public:
 	ofxBulletWorldRigid			world;
 	ofxBulletBox				ground;
     
+    ofxBulletBox*               pan_a;
+    
     ofxBulletBox*                tilt_a;
     ofxBulletBox*                tilt_b;
-    ofxBulletCustomShape*        tilt_as;
 	
-	ofxBulletSphere*			sphere;
-	ofxBulletBox*				box;
-	ofxBulletCone*				cone;
-	ofxBulletCapsule*			capsule;
-	ofxBulletCylinder*			cylinder;
+	ofxBulletBox*				base;
 	
-	ofCamera					camera;
+    ofEasyCam                   easyCam;
     
     ofxPanel gui;
-    ofxFloatSlider angle_a;
-    ofxFloatSlider angle_b;
+    ofxFloatSlider slider_pan_a;
+    ofxFloatSlider slider_tilt_a;
+    ofxFloatSlider slider_tilt_b;
 
     bool ground_colliding;
-    
-    struct TestData{
-        int count;
-        TestData():count(0){}
-    };
     
     ///TestData boxdata;
     
