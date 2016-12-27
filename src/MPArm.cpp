@@ -9,7 +9,7 @@
 #include "MPArm.h"
 
 
-void MPArm::setup(ofxBulletWorldRigid world, float _base_x, float _base_y) {
+void MPArm::setup(ofxBulletWorldRigid &world, float _base_x, float _base_y) {
     
     base = new ofxBulletBox();
     base->create(world.world, ofVec3f(0, 160/2, 0), 0, 500, 160, 500);

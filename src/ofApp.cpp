@@ -76,16 +76,17 @@ void ofApp::update() {
 
     }
 	 
+    
+    world.update();
    
     //ofSetWindowTitle(ofToString(ofGetFrameRate(), 0));
     
     // store the position of the ground //
     ofVec3f pos = ground.getPosition();
     
-    arm.setOsc(pan_a_oscData,tilt_a_oscData, tilt_b_oscData);
+    arm.setOsc(pan_a_oscData, tilt_a_oscData, tilt_b_oscData);
+    //arm.setOsc(slider_pan_a*0.1, slider_tilt_a*0.1, slider_tilt_b*0.1);
     arm.update();
-    
-    world.update();
 
 }
 
