@@ -26,7 +26,9 @@ void ofApp::setup() {
     //MPArm
     //土台(base)setup
     
-    arm.setup(world,0,0);
+    for(int i=0; i<NUM_OF_ARM ; i++){
+        arm[i].setup(world,500*i,500*i);
+    }
 	
     receiver.setup(PORT);
     
@@ -83,10 +85,11 @@ void ofApp::update() {
     
     // store the position of the ground //
     ofVec3f pos = ground.getPosition();
-    
-    arm.setOsc(pan_a_oscData, tilt_a_oscData, tilt_b_oscData);
-    //arm.setOsc(slider_pan_a*0.1, slider_tilt_a*0.1, slider_tilt_b*0.1);
-    arm.update();
+    for(int i=0; i<NUM_OF_ARM; i++){
+        arm[i].setOsc(pan_a_oscData, tilt_a_oscData, tilt_b_oscData);
+        //arm.setOsc(slider_pan_a*0.1, slider_tilt_a*0.1, slider_tilt_b*0.1);
+        arm[i].update();
+    }
 
 }
 
@@ -110,8 +113,9 @@ void ofApp::draw() {
         ground.draw();
     }
     
-    arm.draw();
-
+    for(int i=0; i<NUM_OF_ARM; i++){
+        arm[i].draw();
+    }
     
     //ofSetColor(100,100,100);
     //ground.draw();

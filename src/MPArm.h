@@ -33,7 +33,7 @@ class MPArm{
         float receive_tilt_b_oscData;
     
         float base_x;
-        float base_y;
+        float base_z;
 
 };
 

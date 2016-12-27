@@ -9,10 +9,14 @@
 #include "MPArm.h"
 
 
-void MPArm::setup(ofxBulletWorldRigid &world, float _base_x, float _base_y) {
+void MPArm::setup(ofxBulletWorldRigid &world, float _base_x, float _base_z) {
+    
+    base_x = _base_x;
+    base_z = _base_z;
+
     
     base = new ofxBulletBox();
-    base->create(world.world, ofVec3f(0, 160/2, 0), 0, 500, 160, 500);
+    base->create(world.world, ofVec3f(0+base_x, 160/2, 0+base_z), 0, 500, 160, 500);
     base->setProperties(.25, .95);
     base->add();
     
@@ -50,9 +54,6 @@ void MPArm::setup(ofxBulletWorldRigid &world, float _base_x, float _base_y) {
     pan_b->add();
     pan_b->enableKinematic();
     pan_b->setActivationState(DISABLE_DEACTIVATION);
-    
-    base_x = _base_x;
-    base_y = _base_y;
     
 }
 
@@ -120,7 +121,7 @@ void MPArm::update(){
     float tilt_a_x_pan = cos(newRot_pan_a)*tilt_a_x;
     float tilt_a_z_pan = -sin(newRot_pan_a)*tilt_a_x;
     
-    btVector3 vector_tilt_a = btVector3(tilt_a_x_pan+base_x, tilt_a_y+160+190+base_y, tilt_a_z_pan);
+    btVector3 vector_tilt_a = btVector3(tilt_a_x_pan+base_x, tilt_a_y+160+190, tilt_a_z_pan+base_z);
     
     float tilt_origin_x = tilt_a_x+cos(ofDegToRad(newRot_tilt_a))*500.0f;
     float tilt_origin_y = tilt_a_y+sin(ofDegToRad(newRot_tilt_a))*500.0f;
@@ -137,8 +138,8 @@ void MPArm::update(){
     float tilt_b_global_z_pan = -sin(newRot_pan_a)*tilt_b_global_x;
     
     float tilt_b_x = tilt_b_global_x_pan+base_x;
-    float tilt_b_y = tilt_b_global_y+160+190+base_y;
-    float tilt_b_z = tilt_b_global_z_pan;
+    float tilt_b_y = tilt_b_global_y+160+190;
+    float tilt_b_z = tilt_b_global_z_pan+base_z;
     
     //tilt_c 座標計算
     float tilt_c_local_x = cos(newRot_tilt_c)*75.0f+1000.0f;
@@ -154,8 +155,8 @@ void MPArm::update(){
     float tilt_c_global_z_pan = -sin(newRot_pan_a)*tilt_c_global_x;
     
     float tilt_c_x = tilt_c_global_x_pan+base_x;
-    float tilt_c_y = tilt_c_global_y+160+190+base_y;
-    float tilt_c_z = tilt_c_global_z_pan;
+    float tilt_c_y = tilt_c_global_y+160+190;
+    float tilt_c_z = tilt_c_global_z_pan+base_z;
     
     //pan_b 座標計算
     
@@ -172,12 +173,12 @@ void MPArm::update(){
     float pan_b_global_z_pan = -sin(newRot_pan_a)*pan_b_global_x;
     
     float pan_b_x = pan_b_global_x_pan+base_x;
-    float pan_b_y = pan_b_global_y+160+190+base_y;
-    float pan_b_z = pan_b_global_z_pan;
+    float pan_b_y = pan_b_global_y+160+190;
+    float pan_b_z = pan_b_global_z_pan+base_z;
     
     
     //setOrigin
-    trans_pan_a.setOrigin(btVector3(0+base_x, 160+190/2+base_y, 0));
+    trans_pan_a.setOrigin(btVector3(0+base_x, 160+190/2, base_z));
     trans_tilt_a.setOrigin(vector_tilt_a);
     trans_tilt_b.setOrigin(btVector3( tilt_b_x, tilt_b_y, tilt_b_z));
     trans_tilt_c.setOrigin(btVector3( tilt_c_x, tilt_c_y, tilt_c_z));

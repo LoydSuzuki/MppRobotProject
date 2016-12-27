@@ -8,6 +8,7 @@
 #include "MPArm.h"
 
 #define PORT 2346
+#define NUM_OF_ARM 5
 
 class ofApp : public ofBaseApp{
 
@@ -34,15 +35,6 @@ public:
 	ofxBulletWorldRigid			world;
 	ofxBulletBox				ground;
     
-    /*
-    ofxBulletBox*				base;
-    ofxBulletBox*               pan_a;
-    ofxBulletBox*               tilt_a;
-    ofxBulletBox*               tilt_b;
-    ofxBulletBox*               tilt_c;
-    ofxBulletBox*               pan_b;
-    */
-    
     ofxPanel gui;
     ofxFloatSlider slider_pan_a;
     ofxFloatSlider slider_tilt_a;
@@ -52,7 +44,7 @@ public:
 
     bool ground_colliding;
     
-    MPArm arm;
+    MPArm arm[NUM_OF_ARM];
     
     ///TestData boxdata;
     
