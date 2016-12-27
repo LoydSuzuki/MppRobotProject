@@ -3,7 +3,10 @@
 #include "ofMain.h"
 #include "ofxBullet.h"
 #include "ofxGui.h"
+#include "ofxOsc.h"
 #include "btGhostObject.h"
+
+#define PORT 2346
 
 class ofApp : public ofBaseApp{
 
@@ -47,5 +50,11 @@ public:
     bool ground_colliding;
     
     ///TestData boxdata;
+    
+private:
+    ofxOscReceiver receiver;
+    float pan_a_oscData;
+    float tilt_a_oscData;
+    float tilt_b_oscData;
     
 };

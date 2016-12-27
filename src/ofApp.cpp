@@ -64,6 +64,7 @@ void ofApp::setup() {
     pan_b->enableKinematic();
     pan_b->setActivationState(DISABLE_DEACTIVATION);
 
+    receiver.setup(PORT);
     
     //gui
     gui.setup("panel");
@@ -79,6 +80,35 @@ void ofApp::setup() {
 
 //--------------------------------------------------------------
 void ofApp::update() {
+    
+    while(receiver.hasWaitingMessages()){
+        
+        //次のメッセージを取得
+        ofxOscMessage m;
+        receiver.getNextMessage(&m);
+        
+        //AbletonからのOSCを取得
+        if(m.getAddress() == "/ableton/pan_a"){
+            
+            pan_a_oscData = m.getArgAsFloat(0);
+            
+            //cout << "osc :" << ofToString(pan_a_oscData)  <<endl;
+        }
+        else if(m.getAddress() == "/ableton/tilt_a"){
+            
+            tilt_a_oscData = m.getArgAsFloat(0);
+            
+            //cout << "osc :" << ofToString(pan_b_oscData)  <<endl;
+        }
+        else if(m.getAddress() == "/ableton/tilt_b"){
+            
+            tilt_b_oscData = m.getArgAsFloat(0);
+            
+            //cout << "osc :" << ofToString(pan_b_oscData)  <<endl;
+        }
+
+
+    }
 	
     world.update();
     //ofSetWindowTitle(ofToString(ofGetFrameRate(), 0));
@@ -104,9 +134,12 @@ void ofApp::update() {
     ofQuaternion rotQuat = tilt_a->getRotationQuat();
 
     // rotate it a bit //
-    float newRot_pan_a = slider_pan_a*0.1;;
-    float newRot_tilt_a = slider_tilt_a*0.1;
-    float newRot_tilt_b = slider_tilt_b*0.1;
+    //float newRot_pan_a = slider_pan_a*0.1;
+    float newRot_pan_a = pan_a_oscData;
+    //float newRot_tilt_a = slider_tilt_a*0.1;
+    float newRot_tilt_a = tilt_a_oscData;
+    //float newRot_tilt_b = slider_tilt_b*0.1;
+    float newRot_tilt_b = tilt_b_oscData;
     float newRot_tilt_c = slider_tilt_c*0.1;
     float newRot_pan_b = slider_pan_b*0.1;
     
@@ -191,7 +224,6 @@ void ofApp::update() {
     float pan_b_z = pan_b_global_z_pan;
     
     
-    
     //setOrigin
     trans_pan_a.setOrigin(btVector3(0, 160+190/2, 0));
     trans_tilt_a.setOrigin(vector_tilt_a);
@@ -273,8 +305,6 @@ void ofApp::draw() {
 
 
 void ofApp::onCollision(ofxBulletCollisionData& cdata) {
-    
-    cout << "ContactCallBack " <<endl;
     
     if(ground == cdata){
         
