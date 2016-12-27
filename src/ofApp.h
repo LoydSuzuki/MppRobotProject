@@ -5,6 +5,7 @@
 #include "ofxGui.h"
 #include "ofxOsc.h"
 #include "btGhostObject.h"
+#include "MPArm.h"
 
 #define PORT 2346
 
@@ -32,13 +33,15 @@ public:
 	
 	ofxBulletWorldRigid			world;
 	ofxBulletBox				ground;
-    ofxBulletBox*				base;
     
+    /*
+    ofxBulletBox*				base;
     ofxBulletBox*               pan_a;
     ofxBulletBox*               tilt_a;
     ofxBulletBox*               tilt_b;
     ofxBulletBox*               tilt_c;
     ofxBulletBox*               pan_b;
+    */
     
     ofxPanel gui;
     ofxFloatSlider slider_pan_a;
@@ -48,6 +51,8 @@ public:
     ofxFloatSlider slider_pan_b;
 
     bool ground_colliding;
+    
+    MPArm arm;
     
     ///TestData boxdata;
     

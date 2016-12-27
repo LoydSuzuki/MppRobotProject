@@ -179,6 +179,7 @@
 		ECE6E6E11E10CDA3005A9C28 /* ofxSlider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ECE6E6D61E10CDA3005A9C28 /* ofxSlider.cpp */; };
 		ECE6E6E21E10CDA3005A9C28 /* ofxSliderGroup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ECE6E6D81E10CDA3005A9C28 /* ofxSliderGroup.cpp */; };
 		ECE6E6E31E10CDA3005A9C28 /* ofxToggle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ECE6E6DA1E10CDA3005A9C28 /* ofxToggle.cpp */; };
+		ECE6E6E61E1232DA005A9C28 /* MPArm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ECE6E6E41E1232DA005A9C28 /* MPArm.cpp */; };
 		ECFC2EBDA52F8524D0D3D32D /* btMultiBodyConstraintSolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41E3C805A21C809A3EE6FB2D /* btMultiBodyConstraintSolver.cpp */; };
 		F339BE01E26C23969AD466D8 /* ofxBulletStaticPlane.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6ECBD8087785BF3C6F9CE077 /* ofxBulletStaticPlane.cpp */; };
 		F393FD743E5B44AFF9917168 /* GLDebugDrawer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 93ADA65999612BA629FFBBD9 /* GLDebugDrawer.cpp */; };
@@ -662,6 +663,8 @@
 		ECE6E6D91E10CDA3005A9C28 /* ofxSliderGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxSliderGroup.h; sourceTree = "<group>"; };
 		ECE6E6DA1E10CDA3005A9C28 /* ofxToggle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxToggle.cpp; sourceTree = "<group>"; };
 		ECE6E6DB1E10CDA3005A9C28 /* ofxToggle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxToggle.h; sourceTree = "<group>"; };
+		ECE6E6E41E1232DA005A9C28 /* MPArm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MPArm.cpp; sourceTree = "<group>"; };
+		ECE6E6E51E1232DA005A9C28 /* MPArm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPArm.h; sourceTree = "<group>"; };
 		ED1A541B80FE7B0D10BB3007 /* btTriangleCallback.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = btTriangleCallback.h; path = ../../../addons/ofxBullet/libs/bullet2.8.2/include/BulletCollision/CollisionShapes/btTriangleCallback.h; sourceTree = SOURCE_ROOT; };
 		ED21AE8C45E965E858BC894B /* btSimpleDynamicsWorld.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = btSimpleDynamicsWorld.h; path = ../../../addons/ofxBullet/libs/bullet2.8.2/include/BulletDynamics/Dynamics/btSimpleDynamicsWorld.h; sourceTree = SOURCE_ROOT; };
 		ED3CFF813E5D0AC62303ED14 /* btSoftBody.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = btSoftBody.cpp; path = ../../../addons/ofxBullet/libs/bullet2.8.2/include/BulletSoftBody/btSoftBody.cpp; sourceTree = SOURCE_ROOT; };
@@ -1352,6 +1355,8 @@
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,
+				ECE6E6E41E1232DA005A9C28 /* MPArm.cpp */,
+				ECE6E6E51E1232DA005A9C28 /* MPArm.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -1745,6 +1750,7 @@
 				8F394A15C7AFBE962F881C5F /* gim_box_set.cpp in Sources */,
 				54C818A70CE26A93EFAF92E7 /* gim_contact.cpp in Sources */,
 				F51B637CCC58451EF11593B1 /* gim_memory.cpp in Sources */,
+				ECE6E6E61E1232DA005A9C28 /* MPArm.cpp in Sources */,
 				7B8291FE11D2EDCAC7759CE6 /* gim_tri_collision.cpp in Sources */,
 				FBCDF3F68DA3C9C3F76D7D23 /* btContinuousConvexCollision.cpp in Sources */,
 				38CE9694D5F4EA7E2524302E /* btConvexCast.cpp in Sources */,
