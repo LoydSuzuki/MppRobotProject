@@ -27,20 +27,18 @@ void ofApp::setup() {
     //土台(base)setup
     
     for(int i=0; i<NUM_OF_ARM ; i++){
-        arm[i].setup(world,500*i,500*i);
+        arm[i].setup(world,0,500*i);
     }
 	
     receiver.setup(PORT);
     
     //gui
     gui.setup("panel");
-    gui.add(slider_pan_a.setup("pan_a",0.,-50.,50.));
-    gui.add(slider_tilt_a.setup("tilt_a",0.,-50.,50.));
-    gui.add(slider_tilt_b.setup("tilt_b",0.,-50.,50.));
-    gui.add(slider_tilt_c.setup("tilt_c",0.,-50.,50.));
-    gui.add(slider_pan_b.setup("pan_b",0.,-50.,50.));
-    
-
+    gui.add(slider_pan_a.setup("pan_a",0.,0.,1.));
+    gui.add(slider_tilt_a.setup("tilt_a",0.,0.,1.));
+    gui.add(slider_tilt_b.setup("tilt_b",0.,0.,1.));
+    gui.add(slider_tilt_c.setup("tilt_c",0.,0.,1.));
+    gui.add(slider_pan_b.setup("pan_b",0.,0.,1.));
     
 }
 
@@ -56,26 +54,24 @@ void ofApp::update() {
         receiver.getNextMessage(&m);
         
         //AbletonからのOSCを取得
-        if(m.getAddress() == "/ableton/pan_a"){
+        if(m.getAddress() == "/arm_1/pan_a"){
             
             pan_a_oscData = m.getArgAsFloat(0);
             
             //cout << "osc :" << ofToString(pan_a_oscData)  <<endl;
         }
-        else if(m.getAddress() == "/ableton/tilt_a"){
+        else if(m.getAddress() == "/arm_1/tilt_a"){
             
             tilt_a_oscData = m.getArgAsFloat(0);
             
             //cout << "osc :" << ofToString(pan_b_oscData)  <<endl;
         }
-        else if(m.getAddress() == "/ableton/tilt_b"){
+        else if(m.getAddress() == "/arm_1/tilt_b"){
             
             tilt_b_oscData = m.getArgAsFloat(0);
             
             //cout << "osc :" << ofToString(pan_b_oscData)  <<endl;
         }
-
-
     }
 	 
     
@@ -86,8 +82,8 @@ void ofApp::update() {
     // store the position of the ground //
     ofVec3f pos = ground.getPosition();
     for(int i=0; i<NUM_OF_ARM; i++){
-        arm[i].setOsc(pan_a_oscData, tilt_a_oscData, tilt_b_oscData);
-        //arm.setOsc(slider_pan_a*0.1, slider_tilt_a*0.1, slider_tilt_b*0.1);
+        //arm[i].setOsc(pan_a_oscData, tilt_a_oscData, tilt_b_oscData);
+        arm[i].setOsc(slider_pan_a*0.1, slider_tilt_a*0.1, slider_tilt_b*0.1);
         arm[i].update();
     }
 
@@ -137,6 +133,23 @@ void ofApp::onCollision(ofxBulletCollisionData& cdata) {
     if(ground == cdata){
         
         ground_colliding = TRUE;
+    }
+    
+    for(int i=0;i<NUM_OF_ARM;i++){
+        if(*arm[i].tilt_a == cdata){
+            if(*arm[i].pan_a != cdata && *arm[i].tilt_b != cdata){
+                cout << "ぶつかり" << ofToString(ofGetSeconds())<<endl;
+            }
+        }
+        else if(*arm[i].tilt_b == cdata){
+            
+        }
+        else if(*arm[i].tilt_c == cdata){
+            
+        }
+        else if(*arm[i].pan_b == cdata){
+            
+        }
     }
 }
 
