@@ -33,12 +33,22 @@ void ofApp::setup() {
     receiver.setup(PORT);
     
     //gui
-    gui.setup("panel");
-    gui.add(slider_pan_a.setup("pan_a",0.,0.,1.));
-    gui.add(slider_tilt_a.setup("tilt_a",0.,0.,1.));
-    gui.add(slider_tilt_b.setup("tilt_b",0.,0.,1.));
-    gui.add(slider_tilt_c.setup("tilt_c",0.,0.,1.));
-    gui.add(slider_pan_b.setup("pan_b",0.,0.,1.));
+    /*
+    for(int i=0;i<NUM_OF_ARM;i++){
+        gui[i].setup("panel%s",ofToString(i));
+    }
+    */
+    
+    for(int i=0;i<NUM_OF_ARM;i++){
+        
+        gui[i].setup("panel" + ofToString(i));
+        
+        gui[i].add(slider_pan_a[i].setup("pan_a" + ofToString(i),0.5,0.,1.));
+        gui[i].add(slider_tilt_a[i].setup("tilt_a" + ofToString(i),0.5,0.,1.));
+        gui[i].add(slider_tilt_b[i].setup("tilt_b" + ofToString(i),0.5,0.,1.));
+        gui[i].add(slider_tilt_c[i].setup("tilt_c" + ofToString(i),0.5,0.,1.));
+        gui[i].add(slider_pan_b[i].setup("pan_b" + ofToString(i),0.5,0.,1.));
+    }
     
 }
 
@@ -83,7 +93,7 @@ void ofApp::update() {
     ofVec3f pos = ground.getPosition();
     for(int i=0; i<NUM_OF_ARM; i++){
         //arm[i].setOsc(pan_a_oscData, tilt_a_oscData, tilt_b_oscData);
-        arm[i].setOsc(slider_pan_a*0.1, slider_tilt_a*0.1, slider_tilt_b*0.1);
+        arm[i].setOsc(slider_pan_a[i], slider_tilt_a[i], slider_tilt_b[i], slider_tilt_c[i], slider_pan_b[i]);
         arm[i].update();
     }
 
@@ -120,7 +130,9 @@ void ofApp::draw() {
     
     glDisable( GL_DEPTH_TEST );
     
-    gui.draw();
+    for(int i=0; i<NUM_OF_ARM; i++){
+        gui[i].draw();
+    }
     
     ground_colliding = FALSE;
 }

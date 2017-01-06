@@ -57,11 +57,13 @@ void MPArm::setup(ofxBulletWorldRigid &world, float _base_x, float _base_z) {
     
 }
 
-void MPArm::setOsc(float _pan_a, float _tilt_a, float _tilt_b) {
+void MPArm::setOsc(float _pan_a, float _tilt_a, float _tilt_b, float _tilt_c, float _pan_b) {
     
     receive_pan_a_oscData = _pan_a;
     receive_tilt_a_oscData = _tilt_a;
     receive_tilt_b_oscData = _tilt_b;
+    receive_tilt_c_oscData = _tilt_c;
+    receive_pan_b_oscData = _pan_b;
 }
 
 void MPArm::update(){
@@ -84,17 +86,17 @@ void MPArm::update(){
     ofQuaternion rotQuat = tilt_a->getRotationQuat();
     
     // rotate it a bit //
-    //float newRot_pan_a = slider_pan_a*0.1;
-    float newRot_pan_a = receive_pan_a_oscData;
-    //float newRot_tilt_a = slider_tilt_a*0.1;
-    float newRot_tilt_a = receive_tilt_a_oscData;
-    //float newRot_tilt_b = slider_tilt_b*0.1;
-    float newRot_tilt_b = receive_tilt_b_oscData;
-    //float newRot_tilt_c = slider_tilt_c*0.1;
-    //float newRot_pan_b = slider_pan_b*0.1;
-    
-    float newRot_tilt_c = 0;
-    float newRot_pan_b = 0;
+    //float newRot_pan_a = slider_pan_a;
+    float newRot_pan_a = ofDegToRad(receive_pan_a_oscData*360);
+    //float newRot_tilt_a = slider_tilt_a;
+    float newRot_tilt_a = ofDegToRad(receive_tilt_a_oscData*120+90-120/2);
+    //float newRot_tilt_b = slider_tilt_b;
+    float newRot_tilt_b = ofDegToRad(receive_tilt_b_oscData*270-270/2);
+    //float newRot_tilt_c = slider_tilt_c;
+    float newRot_tilt_c = ofDegToRad(receive_tilt_c_oscData*270-270/2);
+    //float newRot_pan_b = slider_pan_b;
+    float newRot_pan_b = ofDegToRad(receive_pan_b_oscData*360);
+
     
     // set the rotation of the bullet transform to that of the axis of the stored quaternion
     // and apply the new rotation
@@ -123,8 +125,8 @@ void MPArm::update(){
     
     btVector3 vector_tilt_a = btVector3(tilt_a_x_pan+base_x, tilt_a_y+160+190, tilt_a_z_pan+base_z);
     
-    float tilt_origin_x = tilt_a_x+cos(ofDegToRad(newRot_tilt_a))*500.0f;
-    float tilt_origin_y = tilt_a_y+sin(ofDegToRad(newRot_tilt_a))*500.0f;
+    float tilt_origin_x = tilt_a_x+cos(newRot_tilt_a)*500.0f;
+    float tilt_origin_y = tilt_a_y+sin(newRot_tilt_a)*500.0f;
     
     //tilt_b　座標計算
     
