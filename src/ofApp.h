@@ -42,7 +42,7 @@ public:
     ofxFloatSlider slider_tilt_c[NUM_OF_ARM];
     ofxFloatSlider slider_pan_b[NUM_OF_ARM];
 
-    bool ground_colliding;
+    bool colliding;
     
     MPArm arm[NUM_OF_ARM];
     
@@ -50,10 +50,24 @@ public:
     
 private:
     ofxOscReceiver receiver;
-    float pan_a_oscData;
-    float tilt_a_oscData;
-    float tilt_b_oscData;
-    float tilt_c_oscData;
-    float pan_b_oscData;
+    /*
+    float pan_a_oscData[NUM_OF_ARM];
+    float tilt_a_oscData[NUM_OF_ARM];
+    float tilt_b_oscData[NUM_OF_ARM];
+    float tilt_c_oscData[NUM_OF_ARM];
+    float pan_b_oscData[NUM_OF_ARM];
+    */
+    
+    struct oscFromAbleton{
+        float pan_a;
+        float tilt_a;
+        float tilt_b;
+        float tilt_c;
+        float pan_b;
+    };
+    
+    oscFromAbleton osc[NUM_OF_ARM];
+    
+    
     
 };

@@ -63,24 +63,44 @@ void ofApp::update() {
         ofxOscMessage m;
         receiver.getNextMessage(&m);
         
+        for(int i=0; i<NUM_OF_ARM; i++){
+        
         //AbletonからのOSCを取得
-        if(m.getAddress() == "/arm_1/pan_a"){
+            if(m.getAddress() == "/arm_"+ofToString(i)+"/pan_a"){
             
-            pan_a_oscData = m.getArgAsFloat(0);
+                osc[i].pan_a = m.getArgAsFloat(0);
+                slider_pan_a[i] = osc[i].pan_a;
             
-            //cout << "osc :" << ofToString(pan_a_oscData)  <<endl;
-        }
-        else if(m.getAddress() == "/arm_1/tilt_a"){
+                //cout << "osc :" << ofToString(pan_a_oscData)  <<endl;
+            }
+            else if(m.getAddress() == "/arm_"+ofToString(i)+"/tilt_a"){
             
-            tilt_a_oscData = m.getArgAsFloat(0);
+                osc[i].tilt_a = m.getArgAsFloat(0);
+                slider_tilt_a[i] = osc[i].tilt_a;
             
-            //cout << "osc :" << ofToString(pan_b_oscData)  <<endl;
-        }
-        else if(m.getAddress() == "/arm_1/tilt_b"){
+                //cout << "osc :" << ofToString(pan_b_oscData)  <<endl;
+            }
+            else if(m.getAddress() == "/arm_"+ofToString(i)+"/tilt_b"){
             
-            tilt_b_oscData = m.getArgAsFloat(0);
+                osc[i].tilt_b = m.getArgAsFloat(0);
+                slider_tilt_b[i] = osc[i].tilt_b;
             
-            //cout << "osc :" << ofToString(pan_b_oscData)  <<endl;
+                //cout << "osc :" << ofToString(pan_b_oscData)  <<endl;
+            }
+            else if(m.getAddress() == "/arm_"+ofToString(i)+"/tilt_c"){
+                
+                osc[i].tilt_c = m.getArgAsFloat(0);
+                slider_tilt_c[i] = osc[i].tilt_c;
+                
+                //cout << "osc :" << ofToString(pan_b_oscData)  <<endl;
+            }
+            else if(m.getAddress() == "/arm_"+ofToString(i)+"/pan_b"){
+                
+                osc[i].pan_b = m.getArgAsFloat(0);
+                slider_pan_b[i] = osc[i].pan_b;
+                
+                //cout << "osc :" << ofToString(pan_b_oscData)  <<endl;
+            }
         }
     }
 	 
@@ -92,10 +112,12 @@ void ofApp::update() {
     // store the position of the ground //
     ofVec3f pos = ground.getPosition();
     for(int i=0; i<NUM_OF_ARM; i++){
-        //arm[i].setOsc(pan_a_oscData, tilt_a_oscData, tilt_b_oscData);
-        arm[i].setOsc(slider_pan_a[i], slider_tilt_a[i], slider_tilt_b[i], slider_tilt_c[i], slider_pan_b[i]);
+        arm[i].setOsc(osc[i].pan_a, osc[i].tilt_a, osc[i].tilt_b, osc[i].tilt_c, osc[i].pan_b);
+        //arm[i].setOsc(slider_pan_a[i], slider_tilt_a[i], slider_tilt_b[i], slider_tilt_c[i], slider_pan_b[i]);
         arm[i].update();
     }
+    
+    
 
 }
 
@@ -110,7 +132,7 @@ void ofApp::draw() {
 	world.drawDebug();
 	
     
-    if(ground_colliding == TRUE){
+    if(colliding == TRUE){
         ofSetColor(255,0,0);
         ground.draw();
     }
@@ -134,7 +156,11 @@ void ofApp::draw() {
         gui[i].draw();
     }
     
-    ground_colliding = FALSE;
+    colliding = FALSE;
+    
+    stringstream ss;
+    ss << "framerate: " << ofToString(ofGetFrameRate(), 0);
+    ofDrawBitmapString(ss.str(), 10, 20);
 }
 
 //--------------------------------------------------------------
@@ -144,23 +170,29 @@ void ofApp::onCollision(ofxBulletCollisionData& cdata) {
     
     if(ground == cdata){
         
-        ground_colliding = TRUE;
+        colliding = TRUE;
     }
     
     for(int i=0;i<NUM_OF_ARM;i++){
         if(*arm[i].tilt_a == cdata){
             if(*arm[i].pan_a != cdata && *arm[i].tilt_b != cdata){
-                cout << "ぶつかり" << ofToString(ofGetSeconds())<<endl;
+                colliding = TRUE;
             }
         }
         else if(*arm[i].tilt_b == cdata){
-            
+            if(*arm[i].tilt_a != cdata && *arm[i].tilt_c != cdata){
+                colliding = TRUE;
+            }
         }
         else if(*arm[i].tilt_c == cdata){
-            
+            if(*arm[i].tilt_b != cdata && *arm[i].pan_b != cdata){
+                colliding = TRUE;
+            }
         }
         else if(*arm[i].pan_b == cdata){
-            
+            if(*arm[i].tilt_c != cdata){
+               colliding = TRUE;
+            }
         }
     }
 }
