@@ -68,6 +68,7 @@ private:
     };
     
     struct motionData{
+        long  mTime[MUSICTIMEMILLIS];
         float pan_a[MUSICTIMEMILLIS];
         float tilt_a[MUSICTIMEMILLIS];
         float tilt_b[MUSICTIMEMILLIS];
@@ -77,12 +78,13 @@ private:
     
     oscFromAbleton osc[NUM_OF_ARM];
     motionData mData[NUM_OF_ARM];
-    
+    motionData mDataLowFPS[NUM_OF_ARM];
     unsigned long elapsedTime;
     unsigned long startMusicTime;
     bool startMusicFlg;
     unsigned long musicTime;
     
     long preFrame;
+    long musicFrame;
     
 };
