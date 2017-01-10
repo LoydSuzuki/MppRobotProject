@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup() {
-	ofSetFrameRate(60);
+	//ofSetFrameRate(60);
 	ofSetVerticalSync(true);
 	ofBackground( 10, 10, 10);
     
@@ -50,13 +50,29 @@ void ofApp::setup() {
         gui[i].add(slider_pan_b[i].setup("pan_b" + ofToString(i),0.5,0.,1.));
     }
     
+    for(int i=0; i<NUM_OF_ARM; i++){
+        for(int j=0; j<MUSICTIMEMILLIS; j++){
+            mData[i].pan_a[j] = -1.;
+            mData[i].tilt_a[j] = -1.;
+            mData[i].tilt_b[j] = -1.;
+            mData[i].tilt_c[j] = -1.;
+            mData[i].pan_b[j] = -1.;
+        }
+    }
+    //ファイル作成
+    for(int i=0; i<NUM_OF_ARM; i++){
+        string filePath = "motionData_arm" + ofToString(i) + ".csv";
+        ofFile file(filePath,ofFile::WriteOnly);
+    }
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
     
+    elapsedTime = ofGetElapsedTimeMillis();
     
     
+    //OSCのやりとり
     while(receiver.hasWaitingMessages()){
         
         //次のメッセージを取得
@@ -64,6 +80,15 @@ void ofApp::update() {
         receiver.getNextMessage(&m);
         
         for(int i=0; i<NUM_OF_ARM; i++){
+            
+            if(startMusicFlg == FALSE){
+                //メッセージが来たら
+                //if(!receiver.hasWaitingMessages()){
+                    startMusicTime = elapsedTime;
+                    startMusicFlg = TRUE;
+                    cout << "START MUSIC : " << ofToString(startMusicTime)  <<endl;
+                //}
+            }
         
         //AbletonからのOSCを取得
             if(m.getAddress() == "/arm_"+ofToString(i)+"/pan_a"){
@@ -103,7 +128,25 @@ void ofApp::update() {
             }
         }
     }
-	 
+    
+    //モーションデータ(60fps)記録
+    if(startMusicFlg == TRUE){
+        
+        musicTime = elapsedTime - startMusicTime;
+        
+        for(int i=0; i<NUM_OF_ARM; i++){
+            
+            cout << "writing motion data... time : " << ofToString(musicTime)  <<endl;
+            mData[i].pan_a[musicTime] = osc[i].pan_a;
+            mData[i].tilt_a[musicTime] = osc[i].tilt_a;
+            mData[i].tilt_b[musicTime] = osc[i].tilt_b;
+            mData[i].tilt_c[musicTime] = osc[i].tilt_c;
+            mData[i].pan_b[musicTime] = osc[i].pan_b;
+            
+        }
+    }
+    
+    
     
     world.update();
    
@@ -117,7 +160,7 @@ void ofApp::update() {
         arm[i].update();
     }
     
-    
+    preFrame = -1;
 
 }
 
@@ -200,7 +243,56 @@ void ofApp::onCollision(ofxBulletCollisionData& cdata) {
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
-	
+    
+    if(key == 's'){
+        
+        //線形補間
+        for(int i=0; i<NUM_OF_ARM; i++){
+            for(int j=0; j<MUSICTIMEMILLIS; j++){
+                if(mData[i].pan_a[j] != -1){
+                    if(preFrame == -1){
+                        preFrame = j;
+                    }
+                    
+                    else{
+                        long frame;
+                        frame = j;
+                        
+                        for(int m = preFrame+1; m<frame; m++){
+                            mData[i].pan_a[m] =  mData[i].pan_a[preFrame]+(mData[i].pan_a[frame]-mData[i].pan_a[preFrame])*(m-preFrame)/(frame-preFrame);
+                            mData[i].tilt_a[m] = mData[i].tilt_a[preFrame]+(mData[i].tilt_a[frame]-mData[i].tilt_a[preFrame])*(m-preFrame)/(frame-preFrame);
+                            mData[i].tilt_b[m] = mData[i].tilt_b[preFrame]+(mData[i].tilt_b[frame]-mData[i].tilt_b[preFrame])*(m-preFrame)/(frame-preFrame);
+                            mData[i].tilt_c[m] = mData[i].tilt_c[preFrame]+(mData[i].tilt_c[frame]-mData[i].tilt_c[preFrame])*(m-preFrame)/(frame-preFrame);
+                            mData[i].pan_b[m] =  mData[i].pan_b[preFrame]+(mData[i].pan_b[frame]-mData[i].pan_b[preFrame])*(m-preFrame)/(frame-preFrame);
+                        }
+                        preFrame = frame;
+                    }
+                }
+            }
+        }
+        
+        
+        //すべてをデータで書き出す
+        for(int i=0; i<NUM_OF_ARM; i++){
+            
+            string filePath = "motionData_arm" + ofToString(i) + ".csv";
+            ofFile file(filePath,ofFile::WriteOnly);
+            
+            for(int j=0; j<MUSICTIMEMILLIS; j++){
+        
+                file << ofToString(j) + ",";
+                file << ofToString(mData[i].pan_a[j]) + ",";
+                file << ofToString(mData[i].tilt_a[j]) + ",";
+                file << ofToString(mData[i].tilt_b[j]) + ",";
+                file << ofToString(mData[i].tilt_c[j]) + ",";
+                file << ofToString(mData[i].pan_b[j]) + "\n";
+        
+            }
+            
+            file.close();
+            
+        }
+    }
 }
 
 //--------------------------------------------------------------

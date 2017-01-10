@@ -9,6 +9,7 @@
 
 #define PORT 2346
 #define NUM_OF_ARM 2
+#define MUSICTIMEMILLIS 30000
 
 class ofApp : public ofBaseApp{
 
@@ -66,8 +67,22 @@ private:
         float pan_b;
     };
     
+    struct motionData{
+        float pan_a[MUSICTIMEMILLIS];
+        float tilt_a[MUSICTIMEMILLIS];
+        float tilt_b[MUSICTIMEMILLIS];
+        float tilt_c[MUSICTIMEMILLIS];
+        float pan_b[MUSICTIMEMILLIS];
+    };
+    
     oscFromAbleton osc[NUM_OF_ARM];
+    motionData mData[NUM_OF_ARM];
     
+    unsigned long elapsedTime;
+    unsigned long startMusicTime;
+    bool startMusicFlg;
+    unsigned long musicTime;
     
+    long preFrame;
     
 };
