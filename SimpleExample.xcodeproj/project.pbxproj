@@ -159,6 +159,7 @@
 		E4B69E210A3A1BDC003C02F2 /* ofApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */; };
 		E79E5517A8712E2E821E1336 /* btGImpactShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 39D9856DB76FCEE43B5E724F /* btGImpactShape.cpp */; };
 		EBC2AE582BF400096FE63984 /* btGjkConvexCast.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F0E683E97D71907CFF02A614 /* btGjkConvexCast.cpp */; };
+		EC11F8EF1E2747300004DC28 /* CubicSpline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EC11F8ED1E2747300004DC28 /* CubicSpline.cpp */; };
 		ECE6E6BB1E10CB92005A9C28 /* IpEndpointName.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ECE6E6951E10CB92005A9C28 /* IpEndpointName.cpp */; };
 		ECE6E6BC1E10CB92005A9C28 /* NetworkingUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ECE6E69A1E10CB92005A9C28 /* NetworkingUtils.cpp */; };
 		ECE6E6BD1E10CB92005A9C28 /* UdpSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ECE6E69B1E10CB92005A9C28 /* UdpSocket.cpp */; };
@@ -611,6 +612,8 @@
 		E9BCF688DC64290E38197F3F /* btPersistentManifold.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = btPersistentManifold.cpp; path = ../../../addons/ofxBullet/libs/bullet2.8.2/include/BulletCollision/NarrowPhaseCollision/btPersistentManifold.cpp; sourceTree = SOURCE_ROOT; };
 		EA3608C95F66DA638117E888 /* btGImpactMassUtil.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = btGImpactMassUtil.h; path = ../../../addons/ofxBullet/libs/bullet2.8.2/include/BulletCollision/Gimpact/btGImpactMassUtil.h; sourceTree = SOURCE_ROOT; };
 		EA9E557A89DE1DB7C8862F00 /* ofxBulletRigidBody.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxBulletRigidBody.cpp; path = ../../../addons/ofxBullet/src/shapes/ofxBulletRigidBody.cpp; sourceTree = SOURCE_ROOT; };
+		EC11F8ED1E2747300004DC28 /* CubicSpline.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CubicSpline.cpp; sourceTree = "<group>"; };
+		EC11F8EE1E2747300004DC28 /* CubicSpline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CubicSpline.h; sourceTree = "<group>"; };
 		EC219665506E08C49CAC254E /* btConeTwistConstraint.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = btConeTwistConstraint.h; path = ../../../addons/ofxBullet/libs/bullet2.8.2/include/BulletDynamics/ConstraintSolver/btConeTwistConstraint.h; sourceTree = SOURCE_ROOT; };
 		EC507451FB74A317CBAD8DDA /* btBoxCollision.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = btBoxCollision.h; path = ../../../addons/ofxBullet/libs/bullet2.8.2/include/BulletCollision/Gimpact/btBoxCollision.h; sourceTree = SOURCE_ROOT; };
 		ECE6E6901E10CB92005A9C28 /* addon_config.mk */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = addon_config.mk; sourceTree = "<group>"; };
@@ -1357,6 +1360,8 @@
 				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,
 				ECE6E6E41E1232DA005A9C28 /* MPArm.cpp */,
 				ECE6E6E51E1232DA005A9C28 /* MPArm.h */,
+				EC11F8ED1E2747300004DC28 /* CubicSpline.cpp */,
+				EC11F8EE1E2747300004DC28 /* CubicSpline.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -1788,6 +1793,7 @@
 				11D34E274E04139C82226675 /* btRigidBody.cpp in Sources */,
 				243AEA745B29742A4592CAC0 /* btSimpleDynamicsWorld.cpp in Sources */,
 				55B3921AD7125FA16796B6E2 /* Bullet-C-API.cpp in Sources */,
+				EC11F8EF1E2747300004DC28 /* CubicSpline.cpp in Sources */,
 				CCC0EAFFB8AC9663C53D34BD /* btMultiBody.cpp in Sources */,
 				ECE6E6BB1E10CB92005A9C28 /* IpEndpointName.cpp in Sources */,
 				1FF6CFD23D6FF9FA324587BB /* btMultiBodyConstraint.cpp in Sources */,
