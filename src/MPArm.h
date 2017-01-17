@@ -30,7 +30,7 @@
 
 class MPArm{
     public:
-        void setup(ofxBulletWorldRigid &world, float ground_x, float ground_y);
+        void setup(ofxBulletWorldRigid &world, float ground_x, float ground_y, int rotation);
         void setOsc(float _pan_a, float _tilt_a, float _tilt_b, float _tilt_c, float pan_b);
         void update();
         void draw();
@@ -52,6 +52,7 @@ class MPArm{
     
         float base_x;
         float base_z;
+        float base_rotation;
     
         float base_height;
         float pan_a_height;

@@ -26,7 +26,7 @@ void ofApp::setup() {
     //MPArm
     //土台(base)setup
     for(int i=0; i<NUM_OF_ARM ; i++){
-        arm[i].setup(world,0,500*i);
+        arm[i].setup(world,0,500*i,90*i);
     }
 	
     //osc receiver セットアップ

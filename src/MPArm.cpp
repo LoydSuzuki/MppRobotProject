@@ -9,10 +9,11 @@
 #include "MPArm.h"
 
 
-void MPArm::setup(ofxBulletWorldRigid &world, float _base_x, float _base_z) {
+void MPArm::setup(ofxBulletWorldRigid &world, float _base_x, float _base_z, int _base_rotation) {
     
     base_x = _base_x;
     base_z = _base_z;
+    base_rotation = _base_rotation;
     
     base_height = BASE_HEIGHT*SCALE;
     pan_a_height = PAN_A_HEIGHT*SCALE;
@@ -99,6 +100,7 @@ void MPArm::update(){
     ofQuaternion rotQuat = tilt_a->getRotationQuat();
     
     // rotate it a bit //
+    float newRot_base = ofDegToRad(base_rotation);
     //float newRot_pan_a = slider_pan_a;
     float newRot_pan_a = ofDegToRad(receive_pan_a_oscData*360);
     //float newRot_tilt_a = slider_tilt_a;
@@ -114,6 +116,7 @@ void MPArm::update(){
     // set the rotation of the bullet transform to that of the axis of the stored quaternion
     // and apply the new rotation
     
+    btQuaternion base_quat = btQuaternion(btVector3(0.,1.0,0.),newRot_base);
     btQuaternion pan_a_quat =  btQuaternion(btVector3(0.,1.0,0.),newRot_pan_a);
     btQuaternion tilt_a_quat = btQuaternion(btVector3(0.,0.,1.0),newRot_tilt_a);
     btQuaternion tilt_b_quat = btQuaternion(btVector3(0.,0.,1.0),newRot_tilt_b);
@@ -121,11 +124,11 @@ void MPArm::update(){
     btQuaternion pan_b_quat =  btQuaternion(btVector3(1.0,0.,0),newRot_pan_b);
     
     
-    trans_pan_a.setRotation(pan_a_quat);
-    trans_tilt_a.setRotation(pan_a_quat * tilt_a_quat );
-    trans_tilt_b.setRotation(pan_a_quat * tilt_a_quat * tilt_b_quat);
-    trans_tilt_c.setRotation(pan_a_quat * tilt_a_quat * tilt_b_quat * tilt_c_quat);
-    trans_pan_b.setRotation(pan_a_quat * tilt_a_quat * tilt_b_quat * tilt_c_quat * pan_b_quat);
+    trans_pan_a.setRotation(base_quat * pan_a_quat);
+    trans_tilt_a.setRotation(base_quat * pan_a_quat * tilt_a_quat );
+    trans_tilt_b.setRotation(base_quat * pan_a_quat * tilt_a_quat * tilt_b_quat);
+    trans_tilt_c.setRotation(base_quat * pan_a_quat * tilt_a_quat * tilt_b_quat * tilt_c_quat);
+    trans_pan_b.setRotation(base_quat * pan_a_quat * tilt_a_quat * tilt_b_quat * tilt_c_quat * pan_b_quat);
     
     
     //tilt_a 座標計算
@@ -133,8 +136,8 @@ void MPArm::update(){
     float tilt_a_x = cos(newRot_tilt_a)*tilt_a_height/2;
     float tilt_a_y = sin(newRot_tilt_a)*tilt_a_height/2;
     
-    float tilt_a_x_pan = cos(newRot_pan_a)*tilt_a_x;
-    float tilt_a_z_pan = -sin(newRot_pan_a)*tilt_a_x;
+    float tilt_a_x_pan = cos(newRot_base + newRot_pan_a)*tilt_a_x;
+    float tilt_a_z_pan = -sin(newRot_base + newRot_pan_a)*tilt_a_x;
     
     btVector3 vector_tilt_a = btVector3(tilt_a_x_pan+base_x, tilt_a_y+base_height+pan_a_height, tilt_a_z_pan+base_z);
     
@@ -149,8 +152,8 @@ void MPArm::update(){
     float tilt_b_global_x = tilt_b_local_x * cos(newRot_tilt_a) - tilt_b_local_y * sin(newRot_tilt_a);
     float tilt_b_global_y = tilt_b_local_x * sin(newRot_tilt_a) + tilt_b_local_y * cos(newRot_tilt_a);
     
-    float tilt_b_global_x_pan = cos(newRot_pan_a)*tilt_b_global_x;
-    float tilt_b_global_z_pan = -sin(newRot_pan_a)*tilt_b_global_x;
+    float tilt_b_global_x_pan = cos(newRot_base + newRot_pan_a)*tilt_b_global_x;
+    float tilt_b_global_z_pan = -sin(newRot_base + newRot_pan_a)*tilt_b_global_x;
     
     float tilt_b_x = tilt_b_global_x_pan+base_x;
     float tilt_b_y = tilt_b_global_y+base_height+pan_a_height;
@@ -166,8 +169,8 @@ void MPArm::update(){
     float tilt_c_global_x = tilt_c_tilt_b_x * cos(newRot_tilt_a) - tilt_c_tilt_b_y * sin(newRot_tilt_a);
     float tilt_c_global_y = tilt_c_tilt_b_x * sin(newRot_tilt_a) + tilt_c_tilt_b_y * cos(newRot_tilt_a);
     
-    float tilt_c_global_x_pan = cos(newRot_pan_a)*tilt_c_global_x;
-    float tilt_c_global_z_pan = -sin(newRot_pan_a)*tilt_c_global_x;
+    float tilt_c_global_x_pan = cos(newRot_base + newRot_pan_a)*tilt_c_global_x;
+    float tilt_c_global_z_pan = -sin(newRot_base + newRot_pan_a)*tilt_c_global_x;
     
     float tilt_c_x = tilt_c_global_x_pan+base_x;
     float tilt_c_y = tilt_c_global_y+base_height+pan_a_height;
@@ -184,8 +187,8 @@ void MPArm::update(){
     float pan_b_global_x = pan_b_tilt_b_x * cos(newRot_tilt_a) - pan_b_tilt_b_y * sin(newRot_tilt_a);
     float pan_b_global_y = pan_b_tilt_b_x * sin(newRot_tilt_a) + pan_b_tilt_b_y * cos(newRot_tilt_a);
     
-    float pan_b_global_x_pan = cos(newRot_pan_a)*pan_b_global_x;
-    float pan_b_global_z_pan = -sin(newRot_pan_a)*pan_b_global_x;
+    float pan_b_global_x_pan = cos(newRot_base + newRot_pan_a)*pan_b_global_x;
+    float pan_b_global_z_pan = -sin(newRot_base + newRot_pan_a)*pan_b_global_x;
     
     float pan_b_x = pan_b_global_x_pan+base_x;
     float pan_b_y = pan_b_global_y+base_height+pan_a_height;
