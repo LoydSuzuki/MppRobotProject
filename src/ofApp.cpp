@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup() {
-	ofSetFrameRate(60);
+	ofSetFrameRate(30);
 	ofSetVerticalSync(true);
 	ofBackground( 10, 10, 10);
     
@@ -25,11 +25,11 @@ void ofApp::setup() {
     
     //MPArm
     //土台(base)setup
-    
     for(int i=0; i<NUM_OF_ARM ; i++){
         arm[i].setup(world,0,500*i);
     }
 	
+    //osc receiver セットアップ
     receiver.setup(PORT);
     
     //gui
@@ -39,6 +39,7 @@ void ofApp::setup() {
     }
     */
     
+    //ofxGUIセットアップ
     for(int i=0;i<NUM_OF_ARM;i++){
         
         gui[i].setup("panel" + ofToString(i));
@@ -49,7 +50,7 @@ void ofApp::setup() {
         gui[i].add(slider_tilt_c[i].setup("tilt_c" + ofToString(i),0.5,0.,1.));
         gui[i].add(slider_pan_b[i].setup("pan_b" + ofToString(i),0.5,0.,1.));
     }
-    
+    /*
     for(int i=0; i<NUM_OF_ARM; i++){
         for(int j=0; j<MUSICTIMEMILLIS; j++){
             mData[i].pan_a[j] = -1.;
@@ -65,13 +66,18 @@ void ofApp::setup() {
             mDataLowFPS[i].pan_b[j] = -1.;
         }
     }
+    */
+    
     //ファイル作成
     for(int i=0; i<NUM_OF_ARM; i++){
-        string filePath = "motionData_arm" + ofToString(i) + ".csv";
+        string filePath = "motionData_spline_arm" + ofToString(i) + ".csv";
         ofFile file(filePath,ofFile::WriteOnly);
     }
     
+    //その他初期化
     musicFrame = 0;
+    pan_a_rotation_num = 0;
+    pan_b_rotation_num = 0;
 }
 
 //--------------------------------------------------------------
@@ -137,7 +143,16 @@ void ofApp::update() {
         }
     }
     
-    //モーションデータ(60fps)記録
+    //armにAbletonからのデータを反映させる
+    ofVec3f pos = ground.getPosition();
+    for(int i=0; i<NUM_OF_ARM; i++){
+        arm[i].setOsc(osc[i].pan_a, osc[i].tilt_a, osc[i].tilt_b, osc[i].tilt_c, osc[i].pan_b);
+        //arm[i].setOsc(slider_pan_a[i], slider_tilt_a[i], slider_tilt_b[i], slider_tilt_c[i], slider_pan_b[i]);
+        arm[i].update();
+    }
+
+    
+    //モーションデータ(30fps)をvectorに記録
     if(startMusicFlg == TRUE){
         
         musicTime = elapsedTime - startMusicTime;
@@ -145,19 +160,51 @@ void ofApp::update() {
         for(int i=0; i<NUM_OF_ARM; i++){
             
             cout << "writing motion data... time : " << ofToString(musicTime)  <<endl;
-            mData[i].mTime[musicTime] = musicTime;
-            mData[i].pan_a[musicTime] = osc[i].pan_a;
-            mData[i].tilt_a[musicTime] = osc[i].tilt_a;
-            mData[i].tilt_b[musicTime] = osc[i].tilt_b;
-            mData[i].tilt_c[musicTime] = osc[i].tilt_c;
-            mData[i].pan_b[musicTime] = osc[i].pan_b;
             
-            mDataLowFPS[i].mTime[musicFrame] = musicTime;
-            mDataLowFPS[i].pan_a[musicFrame] = osc[i].pan_a;
-            mDataLowFPS[i].tilt_a[musicFrame] = osc[i].tilt_a;
-            mDataLowFPS[i].tilt_b[musicFrame] = osc[i].tilt_b;
-            mDataLowFPS[i].tilt_c[musicFrame] = osc[i].tilt_c;
-            mDataLowFPS[i].pan_b[musicFrame] = osc[i].pan_b;
+            //pan oscを検証
+            if(mDataLowFPS[i].pan_a.size()>1){
+                
+                //pan_a 回転数　インクリメント
+                if(osc[i].pre_pan_a - osc[i].pan_a >= 0.9){
+                    
+                    pan_a_rotation_num ++ ;
+                    
+                }
+                
+                // pan_a 回転数 デクリメント
+                else if(osc[i].pre_pan_a - osc[i].pan_a <= -0.9){
+                    
+                    pan_a_rotation_num -- ;
+                    
+                }
+                
+                //pan_b 回転数　インクリメント
+                if(osc[i].pre_pan_b - osc[i].pan_b >= 0.9){
+                    
+                    pan_b_rotation_num ++ ;
+                    
+                }
+                
+                // pan_b 回転数 デクリメント
+                else if(osc[i].pre_pan_b - osc[i].pan_b <= -0.9){
+                    
+                    pan_b_rotation_num -- ;
+                    
+                }
+            }
+
+            //モーションデータを記録
+            mDataLowFPS[i].mTime.push_back(musicTime);
+            mDataLowFPS[i].pan_a.push_back(osc[i].pan_a + pan_a_rotation_num);
+            mDataLowFPS[i].tilt_a.push_back(osc[i].tilt_a);
+            mDataLowFPS[i].tilt_b.push_back(osc[i].tilt_b);
+            mDataLowFPS[i].tilt_c.push_back(osc[i].tilt_c);
+            mDataLowFPS[i].pan_b.push_back(osc[i].pan_b + pan_b_rotation_num);
+            
+            //osc pre_panに現在のpanを代入
+            osc[i].pre_pan_a = osc[i].pan_a;
+            osc[i].pre_pan_b = osc[i].pan_b;
+            
         }
         
         musicFrame++;
@@ -169,13 +216,6 @@ void ofApp::update() {
    
     //ofSetWindowTitle(ofToString(ofGetFrameRate(), 0));
     
-    // store the position of the ground //
-    ofVec3f pos = ground.getPosition();
-    for(int i=0; i<NUM_OF_ARM; i++){
-        arm[i].setOsc(osc[i].pan_a, osc[i].tilt_a, osc[i].tilt_b, osc[i].tilt_c, osc[i].pan_b);
-        //arm[i].setOsc(slider_pan_a[i], slider_tilt_a[i], slider_tilt_b[i], slider_tilt_c[i], slider_pan_b[i]);
-        arm[i].update();
-    }
     
     preFrame = -1;
 
@@ -261,7 +301,9 @@ void ofApp::onCollision(ofxBulletCollisionData& cdata) {
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
     
+    /*
     if(key == 'm'){
+        
         
         //線形補間
         for(int i=0; i<NUM_OF_ARM; i++){
@@ -297,12 +339,14 @@ void ofApp::keyPressed(int key) {
             
             for(int j=0; j<MUSICTIMEMILLIS; j++){
         
-                file << ofToString(j) + ",";
+     
+                file << ofToString(mData[i].mTime) + ",";
                 file << ofToString(mData[i].pan_a[j]) + ",";
                 file << ofToString(mData[i].tilt_a[j]) + ",";
                 file << ofToString(mData[i].tilt_b[j]) + ",";
                 file << ofToString(mData[i].tilt_c[j]) + ",";
                 file << ofToString(mData[i].pan_b[j]) + "\n";
+     
         
             }
             
@@ -310,25 +354,49 @@ void ofApp::keyPressed(int key) {
             
         }
     }
-    if(key == 's'){
+    */
+
+    if(key == 'f'){
         
         for(int i=0; i<NUM_OF_ARM; i++){
         
             string filePath = "motionData_lowfps_arm" + ofToString(i) + ".csv";
             ofFile file(filePath,ofFile::WriteOnly);
             
-            for(int j=0; j<MUSICTIMEMILLIS; j++){
+            for(int j=0; j<mDataLowFPS[i].pan_a.size(); j++){
                 
                 file << ofToString(j) + ",";
-                file << ofToString(mDataLowFPS[i].pan_a[j]) + ",";
-                file << ofToString(mDataLowFPS[i].tilt_a[j]) + ",";
-                file << ofToString(mDataLowFPS[i].tilt_b[j]) + ",";
-                file << ofToString(mDataLowFPS[i].tilt_c[j]) + ",";
-                file << ofToString(mDataLowFPS[i].pan_b[j]) + "\n";
+                file << ofToString(mDataLowFPS[i].pan_a.at(j)) + ",";
+                file << ofToString(mDataLowFPS[i].tilt_a.at(j)) + ",";
+                file << ofToString(mDataLowFPS[i].tilt_b.at(j)) + ",";
+                file << ofToString(mDataLowFPS[i].tilt_c.at(j)) + ",";
+                file << ofToString(mDataLowFPS[i].pan_b.at(j)) + "\n";
                 
+                /*
+                file << ofToString(mDataLowFPS[i].mTime.at(j)) + ",";
+                file << ofToString(mDataLowFPS[i].pan_a.at(j)) + "\n ";
+                */
             }
             
             file.close();
+        }
+    }
+    
+    if(key == 's'){
+        for(int i=0; i<NUM_OF_ARM; i++){
+            CubicSpline *cs = new CubicSpline(mDataLowFPS[i].pan_a);
+            string filePath = "motionData_spline_arm" + ofToString(i) + ".csv";
+            ofFile file(filePath,ofFile::WriteOnly);
+            
+            
+            for(float j=0; j<mDataLowFPS[i].mTime.size(); j+=0.0303){
+                mDataSpline[i].mTime.push_back(j*0.0303);
+                mDataSpline[i].pan_a.push_back(cs->Calc(j));
+            }
+            for(int j=0; j<mDataSpline[i].mTime.size(); j++){
+                file << ofToString(mDataSpline[i].mTime.at(j)) + ",";
+                file << ofToString(mDataSpline[i].pan_a.at(j)) + "\n";
+            }
         }
     }
 }

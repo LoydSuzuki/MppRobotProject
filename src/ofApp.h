@@ -6,6 +6,7 @@
 #include "ofxOsc.h"
 #include "btGhostObject.h"
 #include "MPArm.h"
+#include "CubicSpline.h"
 
 #define PORT 2346
 #define NUM_OF_ARM 2
@@ -65,20 +66,27 @@ private:
         float tilt_b;
         float tilt_c;
         float pan_b;
+        
+        float pre_pan_a;
+        float pre_pan_b;
     };
     
     struct motionData{
-        long  mTime[MUSICTIMEMILLIS];
-        float pan_a[MUSICTIMEMILLIS];
-        float tilt_a[MUSICTIMEMILLIS];
-        float tilt_b[MUSICTIMEMILLIS];
-        float tilt_c[MUSICTIMEMILLIS];
-        float pan_b[MUSICTIMEMILLIS];
+        vector<double> mTime;
+        vector<double> pan_a;
+        vector<double> tilt_a;
+        vector<double> tilt_b;
+        vector<double> tilt_c;
+        vector<double> pan_b;
     };
+    
+    int pan_a_rotation_num;
+    int pan_b_rotation_num;
     
     oscFromAbleton osc[NUM_OF_ARM];
     motionData mData[NUM_OF_ARM];
     motionData mDataLowFPS[NUM_OF_ARM];
+    motionData mDataSpline[NUM_OF_ARM];
     unsigned long elapsedTime;
     unsigned long startMusicTime;
     bool startMusicFlg;
@@ -86,5 +94,6 @@ private:
     
     long preFrame;
     long musicFrame;
+    
     
 };
