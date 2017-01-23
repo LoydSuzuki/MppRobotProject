@@ -85,7 +85,7 @@ private:
     
     oscFromAbleton osc[NUM_OF_ARM];
     motionData mData[NUM_OF_ARM];
-    motionData mDataLowFPS[NUM_OF_ARM];
+    //motionData mDataLowFPS[NUM_OF_ARM];
     motionData mDataSpline[NUM_OF_ARM];
     unsigned long elapsedTime;
     unsigned long startMusicTime;

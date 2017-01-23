@@ -49,29 +49,15 @@ void ofApp::setup() {
         gui[i].add(slider_tilt_b[i].setup("tilt_b" + ofToString(i),0.5,0.,1.));
         gui[i].add(slider_tilt_c[i].setup("tilt_c" + ofToString(i),0.5,0.,1.));
         gui[i].add(slider_pan_b[i].setup("pan_b" + ofToString(i),0.5,0.,1.));
+        
     }
-    /*
-    for(int i=0; i<NUM_OF_ARM; i++){
-        for(int j=0; j<MUSICTIMEMILLIS; j++){
-            mData[i].pan_a[j] = -1.;
-            mData[i].tilt_a[j] = -1.;
-            mData[i].tilt_b[j] = -1.;
-            mData[i].tilt_c[j] = -1.;
-            mData[i].pan_b[j] = -1.;
-            
-            mDataLowFPS[i].pan_a[j] = -1.;
-            mDataLowFPS[i].tilt_a[j] = -1.;
-            mDataLowFPS[i].tilt_b[j] = -1.;
-            mDataLowFPS[i].tilt_c[j] = -1.;
-            mDataLowFPS[i].pan_b[j] = -1.;
-        }
-    }
-    */
     
     //ファイル作成
     for(int i=0; i<NUM_OF_ARM; i++){
+        
         string filePath = "motionData_spline_arm" + ofToString(i) + ".csv";
         ofFile file(filePath,ofFile::WriteOnly);
+        
     }
     
     //その他初期化
@@ -151,7 +137,6 @@ void ofApp::update() {
         arm[i].update();
     }
 
-    
     //モーションデータ(30fps)をvectorに記録
     if(startMusicFlg == TRUE){
         
@@ -162,7 +147,7 @@ void ofApp::update() {
             cout << "writing motion data... time : " << ofToString(musicTime)  <<endl;
             
             //pan oscを検証
-            if(mDataLowFPS[i].pan_a.size()>1){
+            if(mData[i].pan_a.size()>1){
                 
                 //pan_a 回転数　インクリメント
                 if(osc[i].pre_pan_a - osc[i].pan_a >= 0.9){
@@ -194,12 +179,12 @@ void ofApp::update() {
             }
 
             //モーションデータを記録
-            mDataLowFPS[i].mTime.push_back(musicTime);
-            mDataLowFPS[i].pan_a.push_back(osc[i].pan_a + pan_a_rotation_num);
-            mDataLowFPS[i].tilt_a.push_back(osc[i].tilt_a);
-            mDataLowFPS[i].tilt_b.push_back(osc[i].tilt_b);
-            mDataLowFPS[i].tilt_c.push_back(osc[i].tilt_c);
-            mDataLowFPS[i].pan_b.push_back(osc[i].pan_b + pan_b_rotation_num);
+            mData[i].mTime.push_back(musicTime);
+            mData[i].pan_a.push_back(osc[i].pan_a + pan_a_rotation_num);
+            mData[i].tilt_a.push_back(osc[i].tilt_a);
+            mData[i].tilt_b.push_back(osc[i].tilt_b);
+            mData[i].tilt_c.push_back(osc[i].tilt_c);
+            mData[i].pan_b.push_back(osc[i].pan_b + pan_b_rotation_num);
             
             //osc pre_panに現在のpanを代入
             osc[i].pre_pan_a = osc[i].pan_a;
@@ -355,7 +340,8 @@ void ofApp::keyPressed(int key) {
         }
     }
     */
-
+    
+    //フレーム毎の数値を書き出す
     if(key == 'f'){
         
         for(int i=0; i<NUM_OF_ARM; i++){
@@ -363,39 +349,51 @@ void ofApp::keyPressed(int key) {
             string filePath = "motionData_lowfps_arm" + ofToString(i) + ".csv";
             ofFile file(filePath,ofFile::WriteOnly);
             
-            for(int j=0; j<mDataLowFPS[i].pan_a.size(); j++){
+            for(int j=0; j<mData[i].pan_a.size(); j++){
                 
-                file << ofToString(j) + ",";
-                file << ofToString(mDataLowFPS[i].pan_a.at(j)) + ",";
-                file << ofToString(mDataLowFPS[i].tilt_a.at(j)) + ",";
-                file << ofToString(mDataLowFPS[i].tilt_b.at(j)) + ",";
-                file << ofToString(mDataLowFPS[i].tilt_c.at(j)) + ",";
-                file << ofToString(mDataLowFPS[i].pan_b.at(j)) + "\n";
-                
-                /*
-                file << ofToString(mDataLowFPS[i].mTime.at(j)) + ",";
-                file << ofToString(mDataLowFPS[i].pan_a.at(j)) + "\n ";
-                */
-            }
+                file << ofToString(mData[i].mTime.at(j)) + ",";
+                file << ofToString(mData[i].pan_a.at(j)) + ",";
+                file << ofToString(mData[i].tilt_a.at(j)) + ",";
+                file << ofToString(mData[i].tilt_b.at(j)) + ",";
+                file << ofToString(mData[i].tilt_c.at(j)) + ",";
+                file << ofToString(mData[i].pan_b.at(j)) + "\n";
+                }
             
             file.close();
         }
     }
     
+    //スプライン変換したデータを書き出す
     if(key == 's'){
         for(int i=0; i<NUM_OF_ARM; i++){
-            CubicSpline *cs = new CubicSpline(mDataLowFPS[i].pan_a);
+            CubicSpline *cs = new CubicSpline(mData[i].pan_a);
             string filePath = "motionData_spline_arm" + ofToString(i) + ".csv";
             ofFile file(filePath,ofFile::WriteOnly);
             
-            
-            for(float j=0; j<mDataLowFPS[i].mTime.size(); j+=0.0303){
-                mDataSpline[i].mTime.push_back(j*0.0303);
+            /*
+            for(double j=0; j<mData[i].mTime.size(); j+=0.030303){
+                
+                double tMillis = j*0.030303;
+                mDataSpline[i].mTime.push_back(tMillis);
                 mDataSpline[i].pan_a.push_back(cs->Calc(j));
+            }
+            */
+            for(double j=0; j<mData[i].mTime.size()*33.3333; j++){
+                
+                mDataSpline[i].mTime.push_back(mData[i].mTime.at(j)/33.3333);
+                mDataSpline[i].pan_a.push_back(cs->Calc(j/33.3333));
+                mDataSpline[i].tilt_a.push_back(cs->Calc(j/33.3333));
+                mDataSpline[i].tilt_b.push_back(cs->Calc(j/33.3333));
+                mDataSpline[i].tilt_c.push_back(cs->Calc(j/33.3333));
+                mDataSpline[i].pan_b.push_back(cs->Calc(j/33.3333));
             }
             for(int j=0; j<mDataSpline[i].mTime.size(); j++){
                 file << ofToString(mDataSpline[i].mTime.at(j)) + ",";
-                file << ofToString(mDataSpline[i].pan_a.at(j)) + "\n";
+                file << ofToString(mDataSpline[i].pan_a.at(j)) + ",";
+                file << ofToString(mDataSpline[i].tilt_a.at(j)) + ",";
+                file << ofToString(mDataSpline[i].tilt_b.at(j)) + ",";
+                file << ofToString(mDataSpline[i].tilt_c.at(j)) + ",";
+                file << ofToString(mDataSpline[i].pan_b.at(j)) + "\n";
             }
         }
     }
