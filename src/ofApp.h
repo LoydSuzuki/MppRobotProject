@@ -8,9 +8,14 @@
 #include "MPArm.h"
 #include "CubicSpline.h"
 
+#define OSC_MODE 1
+#define SLIDER_MODE 2
+
+///////////////////
 #define PORT 2346
 #define NUM_OF_ARM 2
 #define MUSICTIMEMILLIS 30000
+///////////////////
 
 class ofApp : public ofBaseApp{
 
@@ -69,6 +74,9 @@ private:
         
         float pre_pan_a;
         float pre_pan_b;
+        float pre_tilt_a;
+        float pre_tilt_b;
+        float pre_tilt_c;
     };
     
     struct motionData{
@@ -95,5 +103,6 @@ private:
     long preFrame;
     long musicFrame;
     
-    
+    ofSerial	serial;
+    int mode;
 };

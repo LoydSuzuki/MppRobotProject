@@ -64,6 +64,19 @@ void ofApp::setup() {
     musicFrame = 0;
     pan_a_rotation_num = 0;
     pan_b_rotation_num = 0;
+    
+    //Arduinoとの通信
+    
+    serial.listDevices();
+    vector <ofSerialDeviceInfo> deviceList = serial.getDeviceList();
+    
+    int baud = 9600;
+    serial.setup(0, baud); //open the first device
+    //serial.setup("COM4", baud); // windows example
+    serial.setup("/dev/tty.usbmodem1411",9600); // mac osx example
+    
+    mode =SLIDER_MODE;
+
 }
 
 //--------------------------------------------------------------
@@ -132,11 +145,49 @@ void ofApp::update() {
     //armにAbletonからのデータを反映させる
     ofVec3f pos = ground.getPosition();
     for(int i=0; i<NUM_OF_ARM; i++){
-        arm[i].setOsc(osc[i].pan_a, osc[i].tilt_a, osc[i].tilt_b, osc[i].tilt_c, osc[i].pan_b);
-        //arm[i].setOsc(slider_pan_a[i], slider_tilt_a[i], slider_tilt_b[i], slider_tilt_c[i], slider_pan_b[i]);
+        if(mode == OSC_MODE) arm[i].setOsc(osc[i].pan_a, osc[i].tilt_a, osc[i].tilt_b, osc[i].tilt_c, osc[i].pan_b);
+        else if(mode == SLIDER_MODE) arm[i].setOsc(slider_pan_a[i], slider_tilt_a[i], slider_tilt_b[i], slider_tilt_c[i], slider_pan_b[i]);
+        
         arm[i].update();
     }
-
+    
+    //実際のロボットにシリアル通信
+    
+    for(int i=0; i<NUM_OF_ARM; i++){
+        
+        serial.writeByte(200);
+        
+        if(mode == SLIDER_MODE){
+        
+            osc[i].pan_a = slider_pan_a[i];
+            osc[i].tilt_a = slider_tilt_a[i];
+            osc[i].tilt_b = slider_tilt_b[i];
+            osc[i].tilt_c = slider_tilt_c[i];
+            osc[i].pan_b = slider_pan_b[i];
+        }
+        
+        int parts_num;
+        int rotation;
+        
+        
+        if(osc[i].pre_pan_a != osc[i].pan_a) serial.writeByte(osc[i].pan_a*180);
+        else serial.writeByte(190);
+        
+        if(osc[i].pre_tilt_a != osc[i].tilt_a) serial.writeByte(osc[i].tilt_a*180);
+        else serial.writeByte(190);
+        
+        if(osc[i].pre_tilt_b != osc[i].tilt_b) serial.writeByte(osc[i].tilt_b*180);
+        else serial.writeByte(190);
+        
+        if(osc[i].pre_tilt_c != osc[i].tilt_c) serial.writeByte(osc[i].tilt_c*180);
+        else serial.writeByte(190);
+        
+        if(osc[i].pre_pan_b != osc[i].pan_b) serial.writeByte(osc[i].pan_b*180);
+        else serial.writeByte(190);
+        
+    }
+    
+    
     //モーションデータ(30fps)をvectorに記録
     if(startMusicFlg == TRUE){
         
@@ -186,15 +237,20 @@ void ofApp::update() {
             mData[i].tilt_c.push_back(osc[i].tilt_c);
             mData[i].pan_b.push_back(osc[i].pan_b + pan_b_rotation_num);
             
-            //osc pre_panに現在のpanを代入
-            osc[i].pre_pan_a = osc[i].pan_a;
-            osc[i].pre_pan_b = osc[i].pan_b;
-            
         }
         
         musicFrame++;
     }
     
+    for(int i=0; i<NUM_OF_ARM; i++){
+        //osc preに現在のステータスを代入
+        osc[i].pre_pan_a = osc[i].pan_a;
+        osc[i].pre_pan_b = osc[i].pan_b;
+        osc[i].pre_tilt_a = osc[i].tilt_a;
+        osc[i].pre_tilt_b = osc[i].tilt_b;
+        osc[i].pre_tilt_c = osc[i].tilt_c;
+
+    }
     
     
     world.update();
@@ -203,7 +259,17 @@ void ofApp::update() {
     
     
     preFrame = -1;
-
+    
+    /*
+    if(slider_pre_pan_a != slider_pan_a[0]){
+        serial.writeByte(1);
+        cout << "SEND : " << 1 <<endl;
+        serial.writeByte(int(slider_pan_a[0]*180));
+        cout << "SEND : " << int(slider_pan_a[0]*180) <<endl;
+    }
+    
+    slider_pre_pan_a = slider_pan_a[0];
+    */
 }
 
 //--------------------------------------------------------------
