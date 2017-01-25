@@ -469,6 +469,18 @@ void ofApp::keyPressed(int key) {
             file.close();
         }
     }
+    
+    if(key == 'c'){
+        
+        startMusicFlg = FALSE;
+        for(int i=0; i<NUM_OF_ARM; i++){
+            mData[i].mTime.clear();
+            mData[i].pan_a.clear();
+            mData[i].tilt_a.clear();
+            mData[i].tilt_b.clear();
+            mData[i].pan_b.clear();
+        }
+    }
 }
 
 //--------------------------------------------------------------
