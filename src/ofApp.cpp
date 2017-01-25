@@ -23,21 +23,13 @@ void ofApp::setup() {
     // allows manipulation of object. The object will not react to other objects, but will apply forces to them //
     
     
-    //MPArm
-    //土台(base)setup
+    //MPArm初期設定
     for(int i=0; i<NUM_OF_ARM ; i++){
         arm[i].setup(world,0,500*i,90*i);
     }
 	
     //osc receiver セットアップ
     receiver.setup(PORT);
-    
-    //gui
-    /*
-    for(int i=0;i<NUM_OF_ARM;i++){
-        gui[i].setup("panel%s",ofToString(i));
-    }
-    */
     
     //ofxGUIセットアップ
     for(int i=0;i<NUM_OF_ARM;i++){
@@ -55,8 +47,13 @@ void ofApp::setup() {
     //ファイル作成
     for(int i=0; i<NUM_OF_ARM; i++){
         
-        string filePath = "motionData_spline_arm" + ofToString(i) + ".csv";
+        string filePath = "motionData_lowfps_arm" + ofToString(i) + ".csv";
         ofFile file(filePath,ofFile::WriteOnly);
+
+        /*
+        string splineFilePath = "motionData_spline_arm" + ofToString(i) + ".csv";
+        ofFile splineFile(splineFilePath,ofFile::WriteOnly);
+        */
         
     }
     
@@ -66,7 +63,6 @@ void ofApp::setup() {
     pan_b_rotation_num = 0;
     
     //Arduinoとの通信
-    
     serial.listDevices();
     vector <ofSerialDeviceInfo> deviceList = serial.getDeviceList();
     
@@ -75,13 +71,14 @@ void ofApp::setup() {
     //serial.setup("COM4", baud); // windows example
     serial.setup("/dev/tty.usbmodem1411",9600); // mac osx example
     
-    mode =SLIDER_MODE;
+    mode =OSC_MODE;
 
 }
 
 //--------------------------------------------------------------
 void ofApp::update() {
     
+    //プログラムが動いてからの時間
     elapsedTime = ofGetElapsedTimeMillis();
     
     
@@ -316,7 +313,7 @@ void ofApp::draw() {
 
 //--------------------------------------------------------------
 
-
+//あたり判定
 void ofApp::onCollision(ofxBulletCollisionData& cdata) {
     
     if(ground == cdata){
@@ -325,6 +322,7 @@ void ofApp::onCollision(ofxBulletCollisionData& cdata) {
     }
     
     for(int i=0;i<NUM_OF_ARM;i++){
+        //各パーツの当たり判定を設定(隣り合っているパーツ以外と衝突した場合にcollidingフラグがtrueになる)
         if(*arm[i].tilt_a == cdata){
             if(*arm[i].pan_a != cdata && *arm[i].tilt_b != cdata){
                 colliding = TRUE;
@@ -432,7 +430,11 @@ void ofApp::keyPressed(int key) {
     //スプライン変換したデータを書き出す
     if(key == 's'){
         for(int i=0; i<NUM_OF_ARM; i++){
-            CubicSpline *cs = new CubicSpline(mData[i].pan_a);
+            CubicSpline *cs_pan_a = new CubicSpline(mData[i].pan_a);
+            CubicSpline *cs_tilt_a = new CubicSpline(mData[i].tilt_a);
+            CubicSpline *cs_tilt_b = new CubicSpline(mData[i].tilt_b);
+            CubicSpline *cs_tilt_c = new CubicSpline(mData[i].tilt_c);
+            CubicSpline *cs_pan_b = new CubicSpline(mData[i].pan_b);
             string filePath = "motionData_spline_arm" + ofToString(i) + ".csv";
             ofFile file(filePath,ofFile::WriteOnly);
             
@@ -446,21 +448,25 @@ void ofApp::keyPressed(int key) {
             */
             for(double j=0; j<mData[i].mTime.size()*33.3333; j++){
                 
-                mDataSpline[i].mTime.push_back(mData[i].mTime.at(j)/33.3333);
-                mDataSpline[i].pan_a.push_back(cs->Calc(j/33.3333));
-                mDataSpline[i].tilt_a.push_back(cs->Calc(j/33.3333));
-                mDataSpline[i].tilt_b.push_back(cs->Calc(j/33.3333));
-                mDataSpline[i].tilt_c.push_back(cs->Calc(j/33.3333));
-                mDataSpline[i].pan_b.push_back(cs->Calc(j/33.3333));
+                //mDataSpline[i].mTime.push_back(mData[i].mTime.at(j)/33.3333);
+                long allTime = mData[i].mTime.at(mData[i].mTime.size()-1);
+                
+                mDataSpline[i].mTime.push_back(allTime/mData[i].mTime.size()/33.3333*j);
+                mDataSpline[i].pan_a.push_back(cs_pan_a->Calc(j/33.3333));
+                mDataSpline[i].tilt_a.push_back(cs_tilt_a->Calc(j/33.3333));
+                mDataSpline[i].tilt_b.push_back(cs_tilt_b->Calc(j/33.3333));
+                mDataSpline[i].tilt_c.push_back(cs_tilt_c->Calc(j/33.3333));
+                mDataSpline[i].pan_b.push_back(cs_pan_b->Calc(j/33.3333));
             }
-            for(int j=0; j<mDataSpline[i].mTime.size(); j++){
-                file << ofToString(mDataSpline[i].mTime.at(j)) + ",";
-                file << ofToString(mDataSpline[i].pan_a.at(j)) + ",";
-                file << ofToString(mDataSpline[i].tilt_a.at(j)) + ",";
-                file << ofToString(mDataSpline[i].tilt_b.at(j)) + ",";
-                file << ofToString(mDataSpline[i].tilt_c.at(j)) + ",";
-                file << ofToString(mDataSpline[i].pan_b.at(j)) + "\n";
+            for(int w=0; w<mDataSpline[i].mTime.size(); w++){
+                file << ofToString(mDataSpline[i].mTime.at(w)) + ",";
+                file << ofToString(mDataSpline[i].pan_a.at(w)) + ",";
+                file << ofToString(mDataSpline[i].tilt_a.at(w)) + ",";
+                file << ofToString(mDataSpline[i].tilt_b.at(w)) + ",";
+                file << ofToString(mDataSpline[i].tilt_c.at(w)) + ",";
+                file << ofToString(mDataSpline[i].pan_b.at(w)) + "\n";
             }
+            file.close();
         }
     }
 }

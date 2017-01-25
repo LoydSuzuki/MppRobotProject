@@ -15,6 +15,8 @@ void MPArm::setup(ofxBulletWorldRigid &world, float _base_x, float _base_z, int 
     base_z = _base_z;
     base_rotation = _base_rotation;
     
+    
+    //各パーツの辺の長さを設定
     base_height = BASE_HEIGHT*SCALE;
     pan_a_height = PAN_A_HEIGHT*SCALE;
     tilt_a_height = TILT_A_HEIGHT*SCALE;
@@ -29,11 +31,13 @@ void MPArm::setup(ofxBulletWorldRigid &world, float _base_x, float _base_z, int 
     tilt_c_width = TILT_C_WIDTH*SCALE;
     pan_b_width = PAN_B_WIDTH*SCALE;
     
+    //baseをcreate
     base = new ofxBulletBox();
     base->create(world.world, ofVec3f(0+base_x, base_height/2, 0+base_z), 0, base_width, base_height, base_width);
     //base->setProperties(.25, .95);
     base->add();
     
+    //pan_aをcreate
     pan_a = new ofxBulletBox();
     pan_a->create(world.world, ofVec3f(0,base_height+pan_a_height/2, 0), 0., pan_a_width,pan_a_height,pan_a_width);
     pan_a->setProperties(.25,.95);
@@ -41,6 +45,7 @@ void MPArm::setup(ofxBulletWorldRigid &world, float _base_x, float _base_z, int 
     pan_a->enableKinematic();
     //pan_a->setActivationState(DISABLE_DEACTIVATION);
     
+    //tilt_aをcreat
     tilt_a = new ofxBulletBox();
     tilt_a->create(world.world, ofVec3f(0.,0.,0.), 1., tilt_a_height, tilt_a_width, tilt_a_width);
     //tilt_a->setProperties(.25,.95);
@@ -48,6 +53,7 @@ void MPArm::setup(ofxBulletWorldRigid &world, float _base_x, float _base_z, int 
     tilt_a->enableKinematic();
     tilt_a->setActivationState(DISABLE_DEACTIVATION);
     
+    //tilt_bをcreat
     tilt_b = new ofxBulletBox();
     tilt_b->create(world.world, ofVec3f(0.,0., 0.), 1., tilt_a_height, tilt_b_width, tilt_b_width );
     //tilt_b->setProperties(.25,.95);
@@ -55,6 +61,7 @@ void MPArm::setup(ofxBulletWorldRigid &world, float _base_x, float _base_z, int 
     tilt_b->enableKinematic();
     tilt_b->setActivationState(DISABLE_DEACTIVATION);
     
+    //tilt_cをcreat
     tilt_c = new ofxBulletBox();
     tilt_c->create(world.world, ofVec3f(0.,0.,0.),1.,tilt_c_height,tilt_c_width,tilt_c_width);
     //tilt_c->setProperties(.25,.95);
@@ -62,6 +69,7 @@ void MPArm::setup(ofxBulletWorldRigid &world, float _base_x, float _base_z, int 
     tilt_c->enableKinematic();
     tilt_c->setActivationState(DISABLE_DEACTIVATION);
     
+    //pan_bをcreat
     pan_b = new ofxBulletBox();
     pan_b->create(world.world, ofVec3f(0.,0.,0.),1.,pan_b_height,pan_b_width,pan_b_width);
     //pan_b->setProperties(.25,.95);
@@ -71,7 +79,7 @@ void MPArm::setup(ofxBulletWorldRigid &world, float _base_x, float _base_z, int 
     
 }
 
-//oscデータをMPArmに読み込むための関数
+//oscデータをofAppからMPArmに読み込むための関数
 void MPArm::setOsc(float _pan_a, float _tilt_a, float _tilt_b, float _tilt_c, float _pan_b) {
     
     receive_pan_a_oscData = _pan_a;
@@ -83,7 +91,7 @@ void MPArm::setOsc(float _pan_a, float _tilt_a, float _tilt_b, float _tilt_c, fl
 
 void MPArm::update(){
     
-    // create a bullet transform object and set the position to that of the object //
+    //各パーツのトランスフォーム設定の宣言 //
     btTransform trans_pan_a;
     btTransform trans_tilt_a;
     btTransform trans_tilt_b;
@@ -100,7 +108,7 @@ void MPArm::update(){
     // get the rotation quaternion from the ground //
     ofQuaternion rotQuat = tilt_a->getRotationQuat();
     
-    // rotate it a bit //
+    //回転をマッピング//
     float rotation_base = ofDegToRad(base_rotation);
     //float newRot_pan_a = slider_pan_a;
     float rotation_pan_a = ofDegToRad(receive_pan_a_oscData*360);
@@ -117,6 +125,7 @@ void MPArm::update(){
     // set the rotation of the bullet transform to that of the axis of the stored quaternion
     // and apply the new rotation
     
+    //各パーツの回転設定をbtQuarternionに代入
     btQuaternion base_quat =   btQuaternion(btVector3(0.,1.0,0.),rotation_base);
     btQuaternion pan_a_quat =  btQuaternion(btVector3(0.,1.0,0.),rotation_pan_a);
     btQuaternion tilt_a_quat = btQuaternion(btVector3(0.,0.,1.0),rotation_tilt_a);
@@ -124,7 +133,7 @@ void MPArm::update(){
     btQuaternion tilt_c_quat = btQuaternion(btVector3(0.,0.,1.0),rotation_tilt_c);
     btQuaternion pan_b_quat =  btQuaternion(btVector3(1.0,0.,0),rotation_pan_b);
     
-    
+    //btQuarternionをトランスフォーム設定にセット
     trans_pan_a.setRotation(base_quat * pan_a_quat);
     trans_tilt_a.setRotation(base_quat * pan_a_quat * tilt_a_quat );
     trans_tilt_b.setRotation(base_quat * pan_a_quat * tilt_a_quat * tilt_b_quat);
@@ -132,7 +141,7 @@ void MPArm::update(){
     trans_pan_b.setRotation(base_quat * pan_a_quat * tilt_a_quat * tilt_b_quat * tilt_c_quat * pan_b_quat);
     
     
-    //tilt_a 座標計算
+    //tilt_a 位置設定
     
     float tilt_a_x = cos(rotation_tilt_a)*tilt_a_height/2;
     float tilt_a_y = sin(rotation_tilt_a)*tilt_a_height/2;
@@ -145,7 +154,7 @@ void MPArm::update(){
     //float tilt_origin_x = tilt_a_x+cos(newRot_tilt_a)*500.0f;
     //float tilt_origin_y = tilt_a_y+sin(newRot_tilt_a)*500.0f;
     
-    //tilt_b　座標計算
+    //tilt_b　位置設定
     float tilt_b_local_x = cos(rotation_tilt_b)*tilt_b_height/2+tilt_a_height;
     float tilt_b_local_y = sin(rotation_tilt_b)*tilt_b_height/2;
     
@@ -159,7 +168,7 @@ void MPArm::update(){
     float tilt_b_y = tilt_b_global_y+base_height+pan_a_height;
     float tilt_b_z = tilt_b_global_z_pan+base_z;
     
-    //tilt_c 座標計算
+    //tilt_c 位置設定
     float tilt_c_local_x = cos(rotation_tilt_c)*tilt_c_height/2+tilt_b_height;
     float tilt_c_local_y = sin(rotation_tilt_c)*tilt_c_height/2;
     
@@ -176,7 +185,7 @@ void MPArm::update(){
     float tilt_c_y = tilt_c_global_y+base_height+pan_a_height;
     float tilt_c_z = tilt_c_global_z_pan+base_z;
     
-    //pan_b 座標計算
+    //pan_b 位置設定
     float pan_b_local_x = cos(rotation_tilt_c)*(tilt_c_height/2+(tilt_c_height+pan_b_height)/2)+tilt_b_height;
     float pan_b_local_y = sin(rotation_tilt_c)*(tilt_c_height/2+(tilt_c_height+pan_b_height)/2);
     
@@ -194,32 +203,37 @@ void MPArm::update(){
     float pan_b_z = pan_b_global_z_pan+base_z;
     
     
-    //setOrigin
+    //setOrigin 位置設定
     trans_pan_a.setOrigin(btVector3(0+base_x, base_height+pan_a_height/2, base_z));
     trans_tilt_a.setOrigin(vector_tilt_a);
     trans_tilt_b.setOrigin(btVector3( tilt_b_x, tilt_b_y, tilt_b_z));
     trans_tilt_c.setOrigin(btVector3( tilt_c_x, tilt_c_y, tilt_c_z));
     trans_pan_b.setOrigin(btVector3( pan_b_x, pan_b_y, pan_b_z));
     
+    //pan_a トランスフォーム
     pan_a->getRigidBody()->setCenterOfMassTransform(trans_pan_a);
     pan_a->getRigidBody()->getMotionState()->setWorldTransform(trans_pan_a);
     pan_a->activate();
     
+    //tilt_a トランスフォーム
     tilt_a->getRigidBody()->setCenterOfMassTransform(trans_tilt_a);
     tilt_a->getRigidBody()->getMotionState()->setWorldTransform(trans_tilt_a);
     // tell the ofxBulletWorldRigid that we have moved rigid body and it should update the collision object //
     tilt_a->activate();
     
+    //tilt_b トランスフォーム
     tilt_b->getRigidBody()->setCenterOfMassTransform(trans_tilt_b);
     tilt_b->getRigidBody()->getMotionState()->setWorldTransform(trans_tilt_b);
     // tell the ofxBulletWorldRigid that we have moved rigid body and it should update the collision object //
     tilt_b->activate();
     
+    //tilt_c トランスフォーム
     tilt_c->getRigidBody()->setCenterOfMassTransform(trans_tilt_c);
     tilt_c->getRigidBody()->getMotionState()->setWorldTransform(trans_tilt_c);
     // tell the ofxBulletWorldRigid that we have moved rigid body and it should update the collision object //
     tilt_c->activate();
     
+    //pan_b トランスフォーム
     pan_b->getRigidBody()->setCenterOfMassTransform(trans_pan_b);
     pan_b->getRigidBody()->getMotionState()->setWorldTransform(trans_pan_b);
     // tell the ofxBulletWorldRigid that we have moved rigid body and it should update the collision object //
