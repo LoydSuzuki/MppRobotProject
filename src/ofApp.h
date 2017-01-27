@@ -3,11 +3,25 @@
 #include "ofMain.h"
 #include "ofxBullet.h"
 #include "ofxGui.h"
+#include "ofxOsc.h"
 #include "btGhostObject.h"
+#include "MPArm.h"
+#include "CubicSpline.h"
+
+#define OSC_MODE 1
+#define SLIDER_MODE 2
+
+/////
+#define NUM_OF_ARM 2
+#define PORT 2346
+#define MODE SLIDER_MODE
+#define SERIALSEND false
+////
 
 class ofApp : public ofBaseApp{
 
 public:
+    
 	void setup();
 	void update();
 	void draw();
@@ -24,33 +38,73 @@ public:
     
     void onCollision(ofxBulletCollisionData& cdata);
     //bool ContactCallback( btManifoldPoint& manifold, void* object0, void* object1 );
+    
+    ofEasyCam                   easyCam;
 	
 	ofxBulletWorldRigid			world;
 	ofxBulletBox				ground;
     
-    ofxBulletBox*                tilt_a;
-    ofxBulletBox*                tilt_b;
-    ofxBulletCustomShape*        tilt_as;
-	
-	ofxBulletSphere*			sphere;
-	ofxBulletBox*				box;
-	ofxBulletCone*				cone;
-	ofxBulletCapsule*			capsule;
-	ofxBulletCylinder*			cylinder;
-	
-	ofCamera					camera;
-    
-    ofxPanel gui;
-    ofxFloatSlider angle_a;
-    ofxFloatSlider angle_b;
+    ofxPanel gui[NUM_OF_ARM];
+    ofxFloatSlider slider_pan_a[NUM_OF_ARM];
+    ofxFloatSlider slider_tilt_a[NUM_OF_ARM];
+    ofxFloatSlider slider_tilt_b[NUM_OF_ARM];
+    ofxFloatSlider slider_tilt_c[NUM_OF_ARM];
+    ofxFloatSlider slider_pan_b[NUM_OF_ARM];
 
-    bool ground_colliding;
+    bool colliding;
     
-    struct TestData{
-        int count;
-        TestData():count(0){}
-    };
+    MPArm arm[NUM_OF_ARM];
     
     ///TestData boxdata;
+    
+private:
+    ofxOscReceiver receiver;
+    /*
+    float pan_a_oscData[NUM_OF_ARM];
+    float tilt_a_oscData[NUM_OF_ARM];
+    float tilt_b_oscData[NUM_OF_ARM];
+    float tilt_c_oscData[NUM_OF_ARM];
+    float pan_b_oscData[NUM_OF_ARM];
+    */
+    
+    struct oscFromAbleton{
+        float pan_a;
+        float tilt_a;
+        float tilt_b;
+        float tilt_c;
+        float pan_b;
+        
+        float pre_pan_a;
+        float pre_pan_b;
+        float pre_tilt_a;
+        float pre_tilt_b;
+        float pre_tilt_c;
+    };
+    
+    struct motionData{
+        vector<double> mTime;
+        vector<double> pan_a;
+        vector<double> tilt_a;
+        vector<double> tilt_b;
+        vector<double> tilt_c;
+        vector<double> pan_b;
+    };
+    
+    int pan_a_rotation_num;
+    int pan_b_rotation_num;
+    
+    oscFromAbleton osc[NUM_OF_ARM];
+    motionData mData[NUM_OF_ARM];
+    //motionData mDataLowFPS[NUM_OF_ARM];
+    motionData mDataSpline[NUM_OF_ARM];
+    unsigned long elapsedTime;
+    unsigned long startMusicTime;
+    bool startMusicFlg;
+    unsigned long musicTime;
+    
+    long preFrame;
+    long musicFrame;
+    
+    ofSerial	serial;
     
 };
