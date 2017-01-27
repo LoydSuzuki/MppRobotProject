@@ -70,8 +70,6 @@ void ofApp::setup() {
     serial.setup(0, baud); //open the first device
     //serial.setup("COM4", baud); // windows example
     serial.setup("/dev/tty.usbmodem1411",9600); // mac osx example
-    
-    mode =OSC_MODE;
 
 }
 
@@ -142,46 +140,46 @@ void ofApp::update() {
     //armにAbletonからのデータを反映させる
     ofVec3f pos = ground.getPosition();
     for(int i=0; i<NUM_OF_ARM; i++){
-        if(mode == OSC_MODE) arm[i].setOsc(osc[i].pan_a, osc[i].tilt_a, osc[i].tilt_b, osc[i].tilt_c, osc[i].pan_b);
-        else if(mode == SLIDER_MODE) arm[i].setOsc(slider_pan_a[i], slider_tilt_a[i], slider_tilt_b[i], slider_tilt_c[i], slider_pan_b[i]);
+        if(MODE == OSC_MODE) arm[i].setOsc(osc[i].pan_a, osc[i].tilt_a, osc[i].tilt_b, osc[i].tilt_c, osc[i].pan_b);
+        else if(MODE == SLIDER_MODE) arm[i].setOsc(slider_pan_a[i], slider_tilt_a[i], slider_tilt_b[i], slider_tilt_c[i], slider_pan_b[i]);
         
         arm[i].update();
     }
     
     //実際のロボットにシリアル通信
-    
-    for(int i=0; i<NUM_OF_ARM; i++){
+    if(SERIALSEND == TRUE){
+        for(int i=0; i<NUM_OF_ARM; i++){
         
-        serial.writeByte(200);
+            serial.writeByte(200);
         
-        if(mode == SLIDER_MODE){
+            if(MODE == SLIDER_MODE){
         
-            osc[i].pan_a = slider_pan_a[i];
-            osc[i].tilt_a = slider_tilt_a[i];
-            osc[i].tilt_b = slider_tilt_b[i];
-            osc[i].tilt_c = slider_tilt_c[i];
-            osc[i].pan_b = slider_pan_b[i];
+                osc[i].pan_a = slider_pan_a[i];
+                osc[i].tilt_a = slider_tilt_a[i];
+                osc[i].tilt_b = slider_tilt_b[i];
+                osc[i].tilt_c = slider_tilt_c[i];
+                osc[i].pan_b = slider_pan_b[i];
+            }
+        
+            int parts_num;
+            int rotation;
+        
+        
+            if(osc[i].pre_pan_a != osc[i].pan_a) serial.writeByte(osc[i].pan_a*180);
+            else serial.writeByte(190);
+        
+            if(osc[i].pre_tilt_a != osc[i].tilt_a) serial.writeByte(osc[i].tilt_a*180);
+            else serial.writeByte(190);
+        
+            if(osc[i].pre_tilt_b != osc[i].tilt_b) serial.writeByte(osc[i].tilt_b*180);
+            else serial.writeByte(190);
+        
+            if(osc[i].pre_tilt_c != osc[i].tilt_c) serial.writeByte(osc[i].tilt_c*180);
+            else serial.writeByte(190);
+        
+            if(osc[i].pre_pan_b != osc[i].pan_b) serial.writeByte(osc[i].pan_b*180);
+            else serial.writeByte(190);
         }
-        
-        int parts_num;
-        int rotation;
-        
-        
-        if(osc[i].pre_pan_a != osc[i].pan_a) serial.writeByte(osc[i].pan_a*180);
-        else serial.writeByte(190);
-        
-        if(osc[i].pre_tilt_a != osc[i].tilt_a) serial.writeByte(osc[i].tilt_a*180);
-        else serial.writeByte(190);
-        
-        if(osc[i].pre_tilt_b != osc[i].tilt_b) serial.writeByte(osc[i].tilt_b*180);
-        else serial.writeByte(190);
-        
-        if(osc[i].pre_tilt_c != osc[i].tilt_c) serial.writeByte(osc[i].tilt_c*180);
-        else serial.writeByte(190);
-        
-        if(osc[i].pre_pan_b != osc[i].pan_b) serial.writeByte(osc[i].pan_b*180);
-        else serial.writeByte(190);
-        
     }
     
     
@@ -470,6 +468,7 @@ void ofApp::keyPressed(int key) {
         }
     }
     
+    //ログデータを消去 starflgをfalseに
     if(key == 'c'){
         
         startMusicFlg = FALSE;

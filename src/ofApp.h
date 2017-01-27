@@ -11,15 +11,17 @@
 #define OSC_MODE 1
 #define SLIDER_MODE 2
 
-///////////////////
-#define PORT 2346
+/////
 #define NUM_OF_ARM 2
-#define MUSICTIMEMILLIS 30000
-///////////////////
+#define PORT 2346
+#define MODE SLIDER_MODE
+#define SERIALSEND false
+////
 
 class ofApp : public ofBaseApp{
 
 public:
+    
 	void setup();
 	void update();
 	void draw();
@@ -104,5 +106,5 @@ private:
     long musicFrame;
     
     ofSerial	serial;
-    int mode;
+    
 };

@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include "ofxBullet.h"
 
+////////////
 #define BASE_HEIGHT 160.f
 #define PAN_A_HEIGHT 190.f
 #define TILT_A_HEIGHT 1000.f
@@ -27,6 +28,7 @@
 #define PAN_B_WIDTH 197.f
 
 #define SCALE 0.5
+//////////////
 
 class MPArm{
     public:
